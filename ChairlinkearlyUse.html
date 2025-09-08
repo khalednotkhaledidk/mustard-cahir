@@ -1,0 +1,4443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ChairLink - The Best MUN Chair Assistant</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+    /* Theme-specific overrides */
+    /* ChairLink Inky (Black and Navy) */
+    .theme-inky {
+      --bg-primary: #60609e;
+      --bg-secondary: #1a1a2e;
+      --text-primary: #e2e8f0;
+      --text-secondary: #a0aec0;
+      --accent: #3b82f6;
+      --accent-light: #60a5fa;
+    }
+
+    /* Security Council (#495445 and #baba9b) */
+    .theme-security {
+      --bg-primary: #3a4a36;
+      --bg-secondary: #495445;
+      --text-primary: #f8fafc;
+      --text-secondary: #e2e8f0;
+      --accent: #baba9b;
+      --accent-light: #d1d5db;
+    }
+
+    /* Crisis (Dark Red and Black) */
+    .theme-crisis {
+      --bg-primary: #1a0000; /* Darker black */
+      --bg-secondary: #2c0000; /* Dark red */
+      --text-primary: #f8dcdc; /* Light red for text */
+      --text-secondary: #f3a5a5; /* Slightly darker light red */
+      --accent: #e50000; /* Bright red accent */
+      --accent-light: #ff3333; /* Lighter red accent */
+    }
+
+    /* Fancy (Gold and Black) */
+    .theme-fancy {
+      --bg-primary: #000000; /* Black */
+      --bg-secondary: #1a1a1a; /* Dark gray for secondary */
+      --text-primary: #ffeb3b; /* Gold text */
+      --text-secondary: #ffe082; /* Lighter gold text */
+      --accent: #ffd700; /* Gold accent */
+      --accent-light: #ffeb8f; /* Lighter gold accent */
+    }
+
+    /* Apply theme colors */
+    .theme-inky {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+    }
+
+    .theme-inky .bg-primary {
+      background-color: var(--bg-primary);
+    }
+
+    .theme-inky .bg-secondary {
+      background-color: var(--bg-secondary);
+    }
+
+    .theme-inky .text-primary {
+      color: var(--text-primary);
+    }
+
+    .theme-inky .text-secondary {
+      color: var(--text-secondary);
+    }
+
+    .theme-inky .bg-accent {
+      background-color: var(--accent);
+    }
+
+    .theme-inky .bg-accent-light {
+      background-color: var(--accent-light);
+    }
+
+    /* Apply similar for other themes */
+    .theme-security {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+    }
+
+    .theme-security .bg-primary {
+      background-color: var(--bg-primary);
+    }
+
+    .theme-security .bg-secondary {
+      background-color: var(--bg-secondary);
+    }
+
+    .theme-security .text-primary {
+      color: var(--text-primary);
+    }
+
+    .theme-security .text-secondary {
+      color: var(--text-secondary);
+    }
+
+    .theme-security .bg-accent {
+      background-color: var(--accent);
+    }
+
+    .theme-security .bg-accent-light {
+      background-color: var(--accent-light);
+    }
+
+
+    .theme-crisis {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+    }
+
+    .theme-crisis .bg-primary {
+      background-color: var(--bg-primary);
+    }
+
+    .theme-crisis .bg-secondary {
+      background-color: var(--bg-secondary);
+    }
+
+    .theme-crisis .text-primary {
+      color: var(--text-primary);
+    }
+
+    .theme-crisis .text-secondary {
+      color: var(--text-secondary);
+    }
+
+    .theme-crisis .bg-accent {
+      background-color: var(--accent);
+    }
+
+    .theme-crisis .bg-accent-light {
+      background-color: var(--accent-light);
+    }
+
+    .theme-fancy {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+    }
+
+    .theme-fancy .bg-primary {
+      background-color: var(--bg-primary);
+    }
+
+    .theme-fancy .bg-secondary {
+      background-color: var(--bg-secondary);
+    }
+
+    .theme-fancy .text-primary {
+      color: var(--text-primary);
+    }
+
+    .theme-fancy .text-secondary {
+      color: var(--text-secondary);
+    }
+
+    .theme-fancy .bg-accent {
+      background-color: var(--accent);
+    }
+
+    .theme-fancy .bg-accent-light {
+      background-color: var(--accent-light);
+    }
+
+    /* Light Theme (default) */
+    .theme-light {
+      --headerbg-primary: #2979ff;
+      --bg-primary: #ffffff;
+      --bg-secondary: #f3f4f6;
+      --text-primary: #111827;
+      --text-secondary: #374151;
+      --accent: #3b82f6;
+      --accent-light: #93c5fd;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+    }
+    .theme-light .bg-primary { background-color: var(--bg-primary); }
+    .theme-light .bg-secondary { background-color: var(--bg-secondary); }
+    .theme-light .text-primary { color: var(--text-primary); }
+    .theme-light .text-secondary { color: var(--text-secondary); }
+    .theme-light .bg-accent { background-color: var(--accent); }
+    .theme-light .bg-accent-light { background-color: var(--accent-light); }
+
+    /* Dark Theme */
+    .theme-dark {
+      --headerbg-primary: #1547b3;
+      --bg-primary: #111827;
+      --bg-secondary: #1f2937;
+      --text-primary: #111827;
+      --text-secondary: #9ca3af;
+      --accent: #60a5fa;
+      --accent-light: #93c5fd;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+    }
+    .theme-dark .bg-primary { background-color: var(--bg-primary); }
+    .theme-dark .bg-secondary { background-color: var(--bg-secondary); }
+    .theme-dark .text-primary { color: var(--text-primary); }
+    .theme-dark .text-secondary { color: var(--text-secondary); }
+    .theme-dark .bg-accent { background-color: var(--accent); }
+    .theme-dark .bg-accent-light { background-color: var(--accent-light); }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+
+    /* Theme-specific scrollbars */
+    .theme-inky ::-webkit-scrollbar-track {
+      background: var(--bg-secondary);
+    }
+
+    .theme-inky ::-webkit-scrollbar-thumb {
+      background: var(--accent);
+    }
+
+    .theme-security ::-webkit-scrollbar-track {
+      background: var(--bg-primary);
+    }
+
+    .theme-security ::-webkit-scrollbar-thumb {
+      background: var(--text-secondary);
+    }
+
+    .theme-crisis ::-webkit-scrollbar-track {
+      background: var(--bg-secondary);
+    }
+
+    .theme-crisis ::-webkit-scrollbar-thumb {
+      background: var(--accent);
+    }
+
+    .theme-fancy ::-webkit-scrollbar-track {
+      background: var(--bg-secondary);
+    }
+
+    .theme-fancy ::-webkit-scrollbar-thumb {
+      background: var(--accent-light);
+    }
+
+    /* Custom animations */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .pulse-animation {
+      animation: pulse 2s infinite;
+    }
+
+    /* For crisis timer */
+    @keyframes crisisFlash {
+      0%, 100% { background-color: #7f1d1d; }
+      50% { background-color: #450a0a; }
+    }
+
+    .crisis-flash {
+      animation: crisisFlash 1s infinite;
+    }
+
+    /* Custom badge styles */
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    /* Voting buttons */
+    .voting-btn {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .voting-btn:hover {
+      transform: scale(1.1);
+    }
+
+    /* Delegate card */
+    .delegate-card {
+      transition: all 0.2s;
+    }
+
+    .delegate-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Custom toggle switch */
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 3.5rem;
+      height: 1.75rem;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 1.75rem;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 1.25rem;
+      width: 1.25rem;
+      left: 0.25rem;
+      bottom: 0.25rem;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .toggle-slider {
+      background-color: #3b82f6;
+    }
+
+    input:checked + .toggle-slider:before {
+      transform: translateX(1.75rem);
+    }
+
+    /* Crisis icon */
+    .crisis-icon {
+      font-family: 'Times New Roman', serif;
+      font-weight: bold;
+    }
+
+    /* New header style */
+    .header-gradient {
+      /* Changed to a darker, more neutral gradient */
+      background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+    }
+
+    .compact-button {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+    }
+
+    .compact-input {
+      padding: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    .compact-select {
+      padding: 0.5rem 1.75rem 0.5rem 0.75rem;
+      font-size: 0.875rem;
+    }
+
+    .flag-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #e5e7eb;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Country selector modal styles */
+    .country-selector-modal {
+      background-color: white;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      width: 90%;
+      max-width: 400px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    /* Roomier custom delegate controls inside selector */
+    #countrySelectorModal .country-selector-modal {
+      gap: 0.75rem;
+    }
+    #countrySelectorModal .country-selector-modal .compact-input,
+    #countrySelectorModal .country-selector-modal .compact-select {
+      padding: 0.75rem;
+      font-size: 1rem;
+    }
+    #countrySelectorModal .country-selector-modal .modal-button {
+      padding: 0.6rem 1rem;
+      font-size: 0.95rem;
+    }
+    #countrySelectorModal #toggleCustomDelegateArea {
+      width: 100%;
+    }
+
+    .country-search {
+      width: 100%;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.25rem;
+    }
+
+    .country-list {
+      max-height: 300px;
+      overflow-y: auto;
+      margin-bottom: 1rem;
+    }
+
+    .country-item {
+      display: flex;
+      align-items: center;
+      padding: 0.5rem;
+      border-bottom: 1px solid #f3f4f6;
+      cursor: pointer;
+    }
+
+    .country-item:hover {
+      background-color: #f9fafb;
+    }
+
+    .country-item input {
+      margin-right: 0.75rem;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+    }
+
+    .modal-button {
+      padding: 0.5rem 1rem;
+      border-radius: 0.25rem;
+      cursor: pointer;
+    }
+
+    .modal-button-primary {
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+    }
+
+    .modal-button-secondary {
+      background-color: #e5e7eb;
+      color: #374151;
+      border: none;
+    }
+
+    /* Improved roll call styles */
+    .roll-call-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .delegate-status-badge {
+      font-size: 0.7rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+    }
+
+    /* Improved header styles */
+    .header-content {
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    .header-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .logo-container {
+      position: relative;
+      margin: 0 auto;
+      width: fit-content;
+    }
+
+    /* Improved button styles */
+    .action-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .action-button:hover {
+      transform: translateY(-1px);
+    }
+
+    /* Loading spinner */
+    .loading-spinner {
+      display: inline-block;
+      width: 1rem;
+      height: 1rem;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Mobile responsive adjustments */
+    @media (max-width: 640px) {
+      .header-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .header-actions .action-button {
+        width: 100%;
+      }
+
+      .roll-call-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .modal {
+        width: 95%;
+        max-width: 95%;
+      }
+    }
+
+    /* Better contrast for notifications */
+    .notification-success {
+      background-color: #10b981;
+      color: white;
+    }
+
+    .notification-error {
+      background-color: #ef4444;
+      color: white;
+    }
+
+    .notification-warning {
+      background-color: #f59e0b;
+      color: white;
+    }
+
+    /* More prominent current speaker display */
+    .current-speaker-display {
+      background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+      color: white;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Settings modal styles */
+    .settings-modal {
+      background-color: white;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .settings-section {
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .settings-section:last-child {
+      border-bottom: none;
+    }
+
+    /* Login modal styles */
+    .login-modal {
+      background-color: white;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      width: 90%;
+      max-width: 400px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .login-input {
+      width: 100%;
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.25rem;
+    }
+
+    /* Voting procedure styles */
+    .voting-procedure {
+      background-color: white;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .vote-option {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem;
+      margin-bottom: 0.5rem;
+      border-radius: 0.25rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .vote-option:hover {
+      background-color: #f3f4f6;
+    }
+
+    .vote-option input {
+      margin-right: 0.75rem;
+    }
+
+    /* Export/import section */
+    .data-export {
+      background-color: #f3f4f6;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+
+    /* Confirmation dialog */
+    .confirmation-dialog {
+      background-color: white;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      width: 90%;
+      max-width: 400px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    /* Star rating specific CSS */
+    .star-rating .fa-star {
+      color: #ccc; /* Default star color */
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .star-rating .fa-star.active {
+      color: #facc15; /* Active star color (yellow-500 equivalent) */
+    }
+
+    /* Sentia Light Theme */
+    .theme-sentia-light {
+      --headerbg-primary: #ffdb73;
+      --bg-primary: #ffefc0;
+      --text-primary: #f37463;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+    }
+    .theme-sentia-light .bg-primary { background-color: #ffefc0; }
+    .theme-sentia-light .bg-secondary { background-color: #ff9484; }
+    .theme-sentia-light .text-primary { color: #f37463; }
+    .theme-sentia-light .text-secondary { color: #ff9484; }
+    .theme-sentia-light .bg-accent { background-color: #f37463; }
+    .theme-sentia-light .bg-accent-light { background-color: #ff9484; }
+
+    /* Sentia Dark Theme */
+    .theme-sentia-dark {
+      --headerbg-primary: #ff4d36;
+      --bg-primary: #f37463;
+      --text-primary: #c04130;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+    }
+    .theme-sentia-dark .bg-primary { background-color: #f37463; }
+    .theme-sentia-dark .bg-secondary { background-color: #ff9484; }
+    .theme-sentia-dark .text-primary { color: #f37463; }
+    .theme-sentia-dark .text-secondary { color: #ff9484; }
+    .theme-sentia-dark .bg-accent { background-color: #ff9484; }
+    .theme-sentia-dark .bg-accent-light { background-color: #ffefc0; }
+
+    /* Future Light Theme */
+    .theme-future-light {
+      background-color: #fff;
+      color: #992450;
+    }
+    .theme-future-light .bg-primary { background-color: #fff; }
+    .theme-future-light .bg-secondary { background-color: #992450; }
+    .theme-future-light .text-primary { color: #3C071B; }
+    .theme-future-light .text-secondary { color: #992450; }
+    .theme-future-light .bg-accent { background-color: #992450; }
+    .theme-future-light .bg-accent-light { background-color: #3C071B; }
+
+    /* Future Dark Theme */
+    .theme-future-dark {
+      background-color: #000000;
+      color: #fff;
+    }
+    .theme-future-dark .bg-primary { background-color: #000000; }
+    .theme-future-dark .bg-secondary { background-color: #3C071B; }
+    .theme-future-dark .text-primary { color: #992450; }
+    .theme-future-dark .text-secondary { color: #fff; }
+    .theme-future-dark .bg-accent { background-color: #992450; }
+    .theme-future-dark .bg-accent-light { background-color: #3C071B; }
+
+    /* Unity Light Theme */
+    .theme-unity-light {
+      background-color: #d5dfe6;
+      color: #5b6570;
+    }
+    .theme-unity-light .bg-primary { background-color: #d5dfe6; }
+    .theme-unity-light .bg-secondary { background-color: #a4b3be; }
+    .theme-unity-light .text-primary { color: #5b6570; }
+    .theme-unity-light .text-secondary { color: #bac7d2; }
+    .theme-unity-light .bg-accent { background-color: #a4b3be; }
+    .theme-unity-light .bg-accent-light { background-color: #bac7d2; }
+
+    /* Unity Dark Theme */
+    .theme-unity-dark {
+      background-color: #5b6570;
+      color: #fff;
+    }
+    .theme-unity-dark .bg-primary { background-color: #5b6570; }
+    .theme-unity-dark .bg-secondary { background-color: #a4b3be; }
+    .theme-unity-dark .text-primary { color: #d5dfe6; }
+    .theme-unity-dark .text-secondary { color: #bac7d2; }
+    .theme-unity-dark .bg-accent { background-color: #a4b3be; }
+    .theme-unity-dark .bg-accent-light { background-color: #d5dfe6; }
+
+    @keyframes spin-fast {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .animate-spin-fast {
+      animation: spin-fast 0.6s cubic-bezier(.4,0,.2,1);
+    }
+  </style>
+</head>
+<body class="font-sans text-gray-900 bg-gray-50">
+<!-- LOGIN OVERLAY -->
+<div id="loginOverlay" class="fixed inset-0 flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-300 z-50 transition-all duration-500">
+  <div class="flex flex-col items-center w-full h-full justify-center">
+    <div class="mb-8 flex flex-col items-center">
+      <img src="https://i.ibb.co/NwvtCRS/CA97-A93-D-A4-E8-4-EC5-802-B-F587-DC5-FAA86.jpg" alt="ChairLink Logo" class="w-16 h-16 rounded-full shadow-lg mb-2">
+      <span class="text-2xl font-bold text-blue-800 tracking-tight">ChairLink</span>
+    </div>
+    <div class="bg-white rounded-2xl shadow-2xl px-8 py-10 w-full max-w-md flex flex-col items-center animate-fadeIn">
+      <h2 class="text-2xl font-bold text-blue-900 mb-2 text-center">Good to see you again</h2>
+      <form id="loginForm" class="w-full mt-4 space-y-5" onsubmit="performLogin">
+        <div>
+          <label class="block text-sm font-semibold mb-1 text-gray-700" for="loginUsername">Your username</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><i class="fas fa-user"></i></span>
+            <input id="loginUsername" type="text" autocomplete="username" placeholder="e.g. Khaled" class="w-full pl-10 pr-3 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition text-base bg-gray-50"/>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold mb-1 text-gray-700" for="loginPassword">Your password</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><i class="fas fa-lock"></i></span>
+            <input id="loginPassword" type="password" autocomplete="current-password" placeholder="e.g. Khaled@chairlinkfounder" class="w-full pl-10 pr-3 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition text-base bg-gray-50"/>
+          </div>
+        </div>
+        <button type="submit" id="loginSubmit" class="w-full bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-500 hover:to-blue-700 text-white font-semibold py-3 rounded-lg transition text-lg shadow">Sign in</button>
+        <div id="loginError" class="text-red-600 text-center font-medium hidden"></div>
+      </form>
+      <div class="mt-6 flex flex-col items-center gap-2 text-sm text-blue-700">
+        <button type="button" onclick="showLoginHelp()" class="hover:underline">Don't have an account?</button>
+        <button type="button" onclick="showLoginHelp()" class="hover:underline">Forgot password?</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- LOADING OVERLAY -->
+<div id="loadingOverlay" class="fixed inset-0 flex items-center justify-center bg-white z-50" style="display:none;">
+  <div class="flex flex-col items-center">
+    <div class="relative w-32 h-32 flex items-center justify-center">
+      <img src="https://i.ibb.co/NwvtCRS/CA97-A93-D-A4-E8-4-EC5-802-B-F587-DC5-FAA86.jpg" alt="ChairLink Logo" class="w-24 h-24 rounded-full shadow-lg"/>
+      <svg class="absolute top-0 left-0 w-32 h-32" viewBox="0 0 128 128">
+        <!-- Outer rotating ring -->
+        <circle cx="64" cy="64" r="56" fill="none" stroke="#2979ff" stroke-width="6" stroke-linecap="round" stroke-dasharray="280" stroke-dashoffset="280">
+          <animateTransform attributeName="transform" type="rotate" from="0 64 64" to="360 64 64" dur="1.5s" repeatCount="indefinite"/>
+          <animate attributeName="stroke-dashoffset" values="280;0;280" dur="1.5s" repeatCount="indefinite"/>
+        </circle>
+        <!-- Inner pulsing ring -->
+        <circle cx="64" cy="64" r="48" fill="none" stroke="#60a5fa" stroke-width="3" stroke-opacity="0.6">
+          <animate attributeName="r" values="48;52;48" dur="2s" repeatCount="indefinite"/>
+          <animate attributeName="stroke-opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"/>
+        </circle>
+      </svg>
+    </div>
+    <div class="mt-6 text-xl font-bold text-blue-700 tracking-wide animate-pulse">Loading ChairLink...</div>
+  </div>
+</div>
+<div id="mainApp" style="display:none;"></div>
+<!-- THEME SELECTOR -->
+<div class="fixed top-2 right-2 z-50 flex items-center space-x-2" id="themeSelectorBar" style="display:none; color:black;">
+  <select class="compact-select border rounded shadow bg-white" id="themeSelector"></select>
+  <button onclick="logout()" class="px-3 py-1 bg-red-500 text-white rounded shadow hover:bg-red-600">Logout</button>
+</div>
+<!-- THEME/LOGOUT ICON BUTTONS -->
+<div class="fixed top-4 right-6 z-50 flex items-center space-x-3" id="iconBar" style="display:none;">
+  <button id="themeIconBtn" class="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow hover:bg-blue-100 transition-transform" title="Change Theme" style="font-size: 1.5rem;">
+    <i class="fas fa-palette"></i>
+  </button>
+  <button id="logoutIconBtn" class="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow hover:bg-red-100 transition" title="Logout" style="font-size: 1.5rem;">
+    <i class="fas fa-sign-out-alt text-red-500"></i>
+  </button>
+</div>
+<header class="w-full" style="background: linear-gradient(135deg, var(--headerbg-primary) 0%, var(--headerbg-primary) 100%); min-height: 260px;">
+  <div class="header-content flex flex-col items-center justify-center py-8">
+    <div class="flex flex-col items-center">
+      <div class="logo-container mb-2 relative w-32 h-32 flex items-center justify-center">
+        <img alt="ChairLink Logo" class="w-32 h-32 rounded-full object-cover shadow-lg cursor-pointer" id="committeeLogo" src="https://i.ibb.co/NwvtCRS/CA97-A93-D-A4-E8-4-EC5-802-B-F587-DC5-FAA86.jpg"/>
+      </div>
+      <h1 class="text-4xl font-extrabold text-white tracking-tight mb-1">ChairLink Early Access</h1>
+      <p class="text-white italic text-lg mb-4" id="committeeName">Edit in Settings</p>
+      <div class="header-actions flex flex-row flex-wrap justify-center gap-3 mt-2">
+        <button class="action-button px-6 py-2 bg-blue-700 text-white font-semibold rounded-xl shadow hover:bg-blue-800 flex items-center gap-2" id="addDelegateBtn">
+          <i class="fas fa-plus"></i> Add Delegate
+        </button>
+        <button class="action-button px-6 py-2 bg-green-500 text-white font-semibold rounded-xl shadow hover:bg-green-600 flex items-center gap-2" id="saveBtn">
+          <i class="fas fa-save"></i> Save
+        </button>
+        <button class="action-button px-6 py-2 bg-purple-600 text-white font-semibold rounded-xl shadow hover:bg-purple-700 flex items-center gap-2" id="exportDataBtn">
+          <i class="fas fa-file-export"></i> Export Data
+        </button>
+        <button class="action-button px-6 py-2 bg-gray-600 text-white font-semibold rounded-xl shadow hover:bg-gray-700 flex items-center gap-2" id="settingsBtn" onclick="openSettings()">
+          <i class="fas fa-cog"></i> Settings
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+<div class="w-full flex flex-wrap justify-center items-center gap-2 bg-white shadow" id="tabBar" style="padding: 0.5rem 0;">
+  <button class="compact-button px-4 py-2 rounded-lg flex items-center font-semibold text-blue-700 hover:bg-blue-50 transition focus:outline-none" onclick="showTab('dashboard')" id="tab-dashboard">
+    <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
+  </button>
+  <button class="compact-button px-4 py-2 rounded-lg flex items-center font-semibold text-blue-700 hover:bg-blue-50 transition focus:outline-none" onclick="showTab('caucus')" id="tab-caucus">
+    <i class="fas fa-comments mr-2"></i>Debate
+  </button>
+  <button class="compact-button px-4 py-2 rounded-lg flex items-center font-semibold text-blue-700 hover:bg-blue-50 transition focus:outline-none" onclick="showTab('notebook')" id="tab-notebook">
+    <i class="fas fa-book mr-2"></i>Notebook
+  </button>
+  <button class="compact-button px-4 py-2 rounded-lg flex items-center font-semibold text-blue-700 hover:bg-blue-50 transition focus:outline-none" onclick="showTab('resolutions')" id="tab-resolutions">
+    <i class="fas fa-file-contract mr-2"></i>Resolutions
+  </button>
+  <button class="compact-button px-4 py-2 rounded-lg flex items-center font-semibold text-blue-700 hover:bg-blue-50 transition focus:outline-none" onclick="showTab('voting')" id="tab-voting">
+    <i class="fas fa-vote-yea mr-2"></i>Voting
+  </button>
+  <button class="compact-button px-4 py-2 rounded-lg flex items-center font-semibold text-blue-700 hover:bg-blue-50 transition focus:outline-none" onclick="showTab('delegateRanking')" id="tab-delegateRanking">
+    <i class="fas fa-star mr-2"></i>Ranking
+  </button>
+  <button class="compact-button px-4 py-2 rounded-lg flex items-center font-semibold text-blue-700 hover:bg-blue-50 transition focus:outline-none" onclick="showTab('analytics')" id="tab-analytics">
+    <i class="fas fa-chart-line mr-2"></i>Analytics
+  </button>
+</div>
+<script>
+// Tab bar active indicator logic
+const tabIds = ['dashboard','caucus','notebook','resolutions','voting','delegateRanking'];
+function showTab(tabId) {
+  tabIds.forEach(id => {
+    document.getElementById(id).classList.add('hidden');
+    document.getElementById('tab-' + id).classList.remove('bg-blue-100','text-blue-900','shadow');
+  });
+  document.getElementById(tabId).classList.remove('hidden');
+  document.getElementById('tab-' + tabId).classList.add('bg-blue-100','text-blue-900','shadow');
+  activeTab = tabId;
+  if (tabId !== 'caucus' && timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+}
+</script>
+<section class="p-4" id="dashboard">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+<div class="border rounded-lg p-4 bg-blue-50 shadow-sm">
+<h3 class="font-semibold text-blue-800 flex items-center text-lg">
+<i class="fas fa-users mr-2"></i>Delegates
+        </h3>
+<div class="mt-2 space-y-2">
+<div class="flex justify-between text-base">
+<span>Total:</span>
+<span class="font-bold" id="totalDelegates">0</span>
+</div>
+<div class="flex justify-between text-base">
+<span>Present:</span>
+<span class="font-bold" id="presentDelegates">0</span>
+</div>
+<div class="flex justify-between text-base">
+<span>Present &amp; Voting:</span>
+<span class="font-bold" id="votingDelegates">0</span>
+</div>
+<div class="flex justify-between text-base">
+<span>Absent:</span>
+<span class="font-bold" id="absentDelegates">0</span>
+</div>
+</div>
+</div>
+<div class="border rounded-lg p-4 bg-green-50 shadow-sm">
+<h3 class="font-semibold text-green-800 flex items-center text-lg">
+<i class="fas fa-clock mr-2"></i>Committee Time
+        </h3>
+<div class="mt-2 space-y-2">
+<div class="flex justify-between text-base">
+<span>Session:</span>
+<span class="font-bold" id="sessionTimer">00:00:00</span>
+</div>
+<div class="flex justify-between text-base">
+<span>Current Speaker:</span>
+<span class="font-bold" id="currentSpeakerTime">00:00</span>
+</div>
+<div class="flex justify-between text-base">
+<span>Next Speaker:</span>
+<span class="font-bold" id="nextSpeakerName">None</span>
+</div>
+<div class="flex justify-between text-base">
+<span>Debate Mode:</span>
+<span class="font-bold" id="debateMode">Formal Debate</span>
+</div>
+</div>
+</div>
+<div class="border rounded-lg p-4 bg-purple-50 shadow-sm">
+<h3 class="font-semibold text-purple-800 flex items-center text-lg">
+<i class="fas fa-chart-pie mr-2"></i>Stats
+        </h3>
+<div class="mt-2 space-y-2">
+<div class="flex justify-between text-base">
+<span>Motions:</span>
+<span class="font-bold" id="totalMotions">0</span>
+</div>
+<div class="flex justify-between text-base">
+<span>Resolutions:</span>
+<span class="font-bold" id="totalResolutions">0</span>
+</div>
+<div class="flex justify-between text-base">
+<span>Crisis Updates:</span>
+<span class="font-bold" id="totalCrisis">0</span>
+</div>
+<div class="flex justify-between text-base">
+<span>Votes Taken:</span>
+<span class="font-bold" id="totalVotes">0</span>
+</div>
+</div>
+</div>
+</div>
+<div class="border rounded-lg p-4 mb-6 shadow-sm">
+<div class="flex justify-between items-center mb-4">
+<h2 class="text-xl font-semibold text-blue-700 flex items-center">
+<i class="fas fa-list-check mr-2"></i>Roll Call
+        </h2>
+<div class="flex gap-2">
+<button class="action-button bg-blue-500 text-white text-sm" onclick="markAllPresent()">
+<i class="fas fa-check mr-1"></i>All Present
+          </button>
+<button class="action-button bg-green-500 text-white text-sm" onclick="markAllPresentVoting()">
+<i class="fas fa-vote-yea mr-1"></i>All P&amp;V
+          </button>
+<button class="action-button bg-red-500 text-white text-sm" onclick="markAllAbsent()">
+<i class="fas fa-times mr-1"></i>All Absent
+          </button>
+<button class="action-button bg-purple-500 text-white text-sm" onclick="showRemoveDelegateModal()">
+<i class="fas fa-user-minus mr-1"></i>Remove
+          </button>
+<button class="action-button bg-orange-500 text-white text-sm" onclick="showImportDelegatesModal()">
+<i class="fas fa-file-import mr-1"></i>Import PDF
+          </button>
+</div>
+</div>
+<div class="roll-call-grid" id="rollCall"></div>
+</div>
+<div class="border rounded-lg p-4 shadow-sm">
+<h2 class="text-xl font-semibold mb-4 text-blue-700 flex items-center">
+<i class="fas fa-bolt mr-2"></i>Quick Actions
+      </h2>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<button class="p-3 bg-blue-100 rounded-lg hover:bg-blue-200 flex flex-col items-center shadow-sm" onclick="showQuickMotionPopup()">
+<i class="fas fa-hand-paper text-blue-600 text-2xl mb-2"></i>
+<span class="text-sm font-medium">New Motion</span>
+</button>
+<button class="p-3 bg-green-100 rounded-lg hover:bg-green-200 flex flex-col items-center shadow-sm" onclick="addPointOfOrder()">
+<i class="fas fa-hand-point-up text-green-600 text-2xl mb-2"></i>
+<span class="text-sm font-medium">Point of Order</span>
+</button>
+<button class="p-3 bg-purple-100 rounded-lg hover:bg-purple-200 flex flex-col items-center shadow-sm" onclick="startVotingProcedure()">
+<i class="fas fa-vote-yea text-purple-600 text-2xl mb-2"></i>
+<span class="text-sm font-medium">Voting</span>
+</button>
+<button class="p-3 bg-yellow-100 rounded-lg hover:bg-yellow-200 flex flex-col items-center shadow-sm" onclick="showTab('caucus')">
+<i class="fas fa-clock text-yellow-600 text-2xl mb-2"></i>
+<span class="text-sm font-medium">Start Caucus</span>
+</button>
+</div>
+</div>
+</section>
+<section class="hidden p-4" id="caucus">
+<div class="flex flex-col md:flex-row gap-6">
+<div class="flex-1">
+<div class="flex justify-between items-center mb-4">
+<h2 class="text-xl font-semibold text-blue-700 flex items-center">
+<i class="fas fa-users mr-2"></i>Speaker Lists
+          </h2>
+<div class="flex gap-2">
+<button class="action-button bg-blue-500 text-white text-sm" onclick="showCountrySelector('speaker')">
+<i class="fas fa-plus mr-1"></i>Add
+            </button>
+<button class="action-button bg-red-500 text-white text-sm" onclick="confirmClearSpeakerList('primary')">
+<i class="fas fa-trash mr-1"></i>Clear
+            </button>
+</div>
+</div>
+<div class="mb-6">
+<div class="flex justify-between items-center mb-2">
+<h3 class="font-semibold text-lg">Primary List</h3>
+<div class="flex gap-2">
+<button class="action-button bg-purple-500 text-white text-sm" onclick="randomizeSpeakerList('primary')">
+<i class="fas fa-random mr-1"></i>Randomize
+              </button>
+</div>
+</div>
+<div class="border rounded-lg p-3 min-h-40 max-h-96 overflow-y-auto space-y-2 shadow-sm" id="primarySpeakerList"></div>
+</div>
+<div class="border rounded-lg p-4 shadow-sm">
+<div class="flex justify-between items-center mb-2">
+<h3 class="font-semibold flex items-center text-lg">
+<i class="fas fa-hand-paper mr-2"></i>Recent Points &amp; Motions
+            </h3>
+<div class="flex gap-2">
+<button class="action-button bg-red-500 text-white text-sm" onclick="confirmClearRecentPoints()">
+<i class="fas fa-trash mr-1"></i>Clear
+              </button>
+</div>
+</div>
+<div class="space-y-2 max-h-48 overflow-y-auto text-base" id="recentPoints">
+</div>
+</div>
+</div>
+<div class="flex-1">
+<h2 class="text-xl font-semibold mb-4 text-blue-700 flex items-center">
+<i class="fas fa-user-tie mr-2"></i>Current Speaker
+        </h2>
+<div class="current-speaker-display p-6 w-full text-center mb-6 shadow-sm">
+<div class="flex justify-between items-center mb-3">
+<span class="font-semibold text-base">Speaker:</span>
+<span class="font-bold text-white text-lg" id="currentSpeaker">No speaker</span>
+</div>
+<div class="flex justify-between items-center mb-4">
+<span class="font-semibold text-base">Country:</span>
+<span class="text-base flex items-center gap-2" id="currentSpeakerCountry">-</span>
+</div>
+<div class="flex justify-between items-center mb-6">
+<span class="font-semibold text-base">Time:</span>
+<div class="flex items-center">
+<span class="text-4xl font-mono text-white" id="timer">01:30</span>
+<div class="flex flex-col ml-3">
+<button class="text-white hover:text-blue-200 mb-2 text-xl" onclick="adjustTime(-15)">
+<i class="fas fa-minus-circle"></i>
+</button>
+<button class="text-white hover:text-blue-200 text-xl" onclick="adjustTime(15)">
+<i class="fas fa-plus-circle"></i>
+</button>
+</div>
+</div>
+</div>
+<div class="flex justify-center gap-3">
+<button class="action-button bg-green-500 text-white" onclick="startTimer()">
+<i class="fas fa-play mr-1"></i>Start
+            </button>
+<button class="action-button bg-yellow-500 text-white" onclick="pauseTimer()">
+<i class="fas fa-pause mr-1"></i>Pause
+            </button>
+<button class="action-button bg-red-500 text-white" onclick="skipSpeaker()">
+<i class="fas fa-forward mr-1"></i>Skip
+            </button>
+<button class="action-button bg-gray-500 text-white" onclick="resetSpeakerTimer()">
+<i class="fas fa-undo mr-1"></i>Reset
+            </button>
+</div>
+</div>
+<h2 class="text-xl font-semibold mb-4 text-blue-700 flex items-center">
+<i class="fas fa-clock mr-2"></i>Caucus Controls
+        </h2>
+<div class="grid grid-cols-1 gap-4 mb-6">
+<div class="border rounded-lg p-4 shadow-sm">
+<h3 class="font-semibold mb-2 text-lg">Moderated Caucus</h3>
+<div class="flex flex-col gap-3">
+<input class="compact-input border rounded-lg text-base" id="modTopic" placeholder="Topic" type="text"/>
+<div class="flex items-center gap-2">
+<input class="compact-input border rounded-lg text-base flex-1" id="modDuration" placeholder="Duration" type="number" value="5"/>
+<select class="compact-select border rounded-lg text-base">
+<option>minutes</option>
+<option>seconds</option>
+</select>
+</div>
+<input class="compact-input border rounded-lg text-base" id="modSpeakerTime" placeholder="Speaker time (sec)" type="number" value="30"/>
+<div class="flex gap-2">
+<button class="action-button bg-blue-500 text-white flex-1" onclick="startModeratedCaucus()">
+                  Start
+                </button>
+</div>
+</div>
+</div>
+</div>
+<div class="border rounded-lg p-4 shadow-sm">
+<h3 class="font-semibold mb-2 text-lg flex items-center">
+<i class="fas fa-question-circle mr-2"></i>Points of Information
+          </h3>
+<div class="flex items-center gap-2 mb-2">
+<input class="compact-input border rounded-lg text-base flex-1" id="poiQuestion" placeholder="Question" type="text"/>
+<select class="compact-select border rounded-lg text-base" id="poiTarget">
+<option value="chair">To Chair</option>
+<option value="speaker">To Speaker</option>
+</select>
+<button class="action-button bg-blue-500 text-white" onclick="addPOI()">
+<i class="fas fa-plus"></i>
+</button>
+</div>
+<div class="space-y-2 max-h-48 overflow-y-auto text-base" id="poiList">
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="hidden p-4" id="notebook">
+<div class="flex flex-col">
+<h2 class="text-xl font-semibold mb-4 text-blue-700 flex items-center">
+<i class="fas fa-book mr-2"></i>Committee Notes
+        </h2>
+<textarea class="w-full h-96 border rounded-lg p-4 font-mono text-base shadow-sm" id="notebookText" placeholder="Take notes here..."></textarea>
+<div class="mt-4 flex gap-2 flex-wrap">
+<button class="action-button bg-blue-500 text-white" onclick="saveNote()">
+<i class="fas fa-save mr-1"></i>Save
+          </button>
+<button class="action-button bg-yellow-100 text-yellow-800 border border-yellow-200" onclick="insertTimestamp()">
+<i class="fas fa-clock mr-1"></i>Timestamp
+          </button>
+<button class="action-button bg-green-100 text-green-800 border border-green-200" onclick="exportNotes()">
+<i class="fas fa-download mr-1"></i>Export
+          </button>
+</div>
+</div>
+</section>
+<section class="hidden p-4" id="resolutions">
+<div class="flex justify-between items-center mb-4">
+<h2 class="text-xl font-semibold text-blue-700 flex items-center">
+<i class="fas fa-file-contract mr-2"></i>Resolutions
+        </h2>
+<div class="flex gap-2">
+<button class="action-button bg-blue-500 text-white" onclick="showResolutionPopup()">
+<i class="fas fa-plus mr-1"></i>New
+          </button>
+<button class="action-button bg-green-500 text-white" onclick="exportResolutions()">
+<i class="fas fa-download mr-1"></i>Export
+          </button>
+</div>
+</div>
+<div class="border rounded-lg p-4 shadow-sm">
+<div class="overflow-x-auto">
+<table class="min-w-full bg-white text-base">
+<thead>
+<tr class="border-b">
+<th class="py-3 px-4 text-left">Resolution</th>
+<th class="py-3 px-4 text-left">Topic</th>
+<th class="py-3 px-4 text-left">Status</th>
+<th class="py-3 px-4 text-left">Actions</th>
+</tr>
+</thead>
+<tbody id="resolutionList">
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section class="hidden p-4" id="voting">
+<div class="flex justify-between items-center mb-4">
+<h2 class="text-xl font-semibold text-blue-700 flex items-center">
+<i class="fas fa-vote-yea mr-2"></i>Voting Procedures
+        </h2>
+<div class="flex gap-2">
+<button class="action-button bg-blue-500 text-white" onclick="startRollCallVote()">
+<i class="fas fa-list-ol mr-1"></i>Roll Call
+          </button>
+<button class="action-button bg-green-500 text-white" onclick="startShowOfHands()">
+<i class="fas fa-hand-paper mr-1"></i>Show of Hands
+          </button>
+<button class="action-button bg-purple-500 text-white" onclick="startVotingProcedure()">
+<i class="fas fa-vote-yea mr-1"></i>Voting Procedure
+          </button>
+</div>
+</div>
+<div class="border rounded-lg p-4 shadow-sm mt-6">
+<h3 class="font-semibold mb-2 text-lg flex items-center">
+<i class="fas fa-history mr-2"></i>Voting History
+          </h3>
+<div class="overflow-x-auto">
+<table class="min-w-full bg-white text-base">
+<thead>
+<tr class="border-b">
+<th class="py-3 px-4 text-left">Vote</th>
+<th class="py-3 px-4 text-left">Type</th>
+<th class="py-3 px-4 text-left">Result</th>
+<th class="py-3 px-4 text-left">Details</th>
+</tr>
+</thead>
+<tbody id="votingHistory">
+</tbody>
+</table>
+</div>
+</div>
+<div class="fixed bottom-4 right-4 bg-white border rounded-lg shadow-lg p-4 z-40 hidden" id="activeVotingDisplay">
+<div class="flex justify-between items-center mb-2">
+<h4 class="font-semibold text-base">Voting in Progress</h4>
+<button class="text-gray-500 hover:text-gray-700" onclick="closeVotingDisplay()">
+<i class="fas fa-times"></i>
+</button>
+</div>
+<div class="mb-2">
+<span class="font-medium text-base" id="activeVoteSubject"></span>
+</div>
+<div class="grid grid-cols-4 gap-2 mb-2">
+<div class="text-center">
+<div class="font-bold text-green-600 text-base" id="yesVotes">0</div>
+<div class="text-sm">Yes</div>
+</div>
+<div class="text-center">
+<div class="font-bold text-red-600 text-base" id="noVotes">0</div>
+<div class="text-sm">No</div>
+</div>
+<div class="text-center">
+<div class="font-bold text-gray-600 text-base" id="abstainVotes">0</div>
+<div class="text-sm">Abstain</div>
+</div>
+<div class="text-center">
+<div class="font-bold text-blue-600 text-base" id="presentVotes">0</div>
+<div class="text-sm">Present</div>
+</div>
+</div>
+<div class="w-full bg-gray-200 rounded-full h-2.5">
+<div class="bg-blue-600 h-2.5 rounded-full" id="votingProgress" style="width: 100%"></div>
+</div>
+<div class="flex justify-between text-sm mt-2">
+<span>Time left:</span>
+<span id="votingTimeLeft">30s</span>
+</div>
+<div class="flex justify-end mt-3">
+<button class="action-button bg-red-500 text-white text-sm" onclick="endVoting()">
+<i class="fas fa-stop mr-1"></i>End Voting
+          </button>
+</div>
+</div>
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" id="votingProcedureModal">
+<div class="voting-procedure w-full max-w-md">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-xl font-semibold">Voting Procedure</h3>
+<button class="text-gray-500 hover:text-gray-700" onclick="closeModal('votingProcedureModal')">
+<i class="fas fa-times"></i>
+</button>
+</div>
+</div>
+</div>
+
+<!-- Digital Voting Modal -->
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" id="digitalVotingModal">
+<div class="bg-white rounded-lg p-6 shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-2xl font-bold text-gray-800">Digital Voting Session</h3>
+<button class="text-gray-500 hover:text-gray-700 text-xl" onclick="closeModal('digitalVotingModal')">
+<i class="fas fa-times"></i>
+</button>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- QR Code Section -->
+<div class="text-center">
+<h4 class="text-lg font-semibold mb-4 text-gray-700">QR Code</h4>
+<div class="bg-gray-100 rounded-lg p-4 mb-4">
+<div id="qrCodeContainer" class="flex justify-center">
+<!-- QR Code will be generated here -->
+</div>
+</div>
+<button class="action-button bg-blue-500 text-white" onclick="downloadQRCode()">
+<i class="fas fa-download mr-2"></i>Download QR Code
+</button>
+</div>
+
+<!-- Links Section -->
+<div>
+<h4 class="text-lg font-semibold mb-4 text-gray-700">Voting Links</h4>
+<div class="space-y-4">
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-2">Master Link (for all delegates):</label>
+<div class="flex">
+<input type="text" id="masterVotingLink" class="flex-1 p-2 border rounded-l-md text-sm" readonly>
+<button class="action-button bg-blue-500 text-white px-3 rounded-r-md" onclick="copyToClipboard('masterVotingLink')">
+<i class="fas fa-copy"></i>
+</button>
+</div>
+</div>
+
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-2">Individual Links:</label>
+<div class="max-h-48 overflow-y-auto space-y-2" id="individualLinksContainer">
+<!-- Individual links will be generated here -->
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Live Results Section -->
+<div class="mt-6 border-t pt-6">
+<h4 class="text-lg font-semibold mb-4 text-gray-700">Live Results</h4>
+<div class="grid grid-cols-3 gap-4 mb-4">
+<div class="bg-green-100 rounded-lg p-4 text-center">
+<div class="text-2xl font-bold text-green-600" id="digitalYesVotes">0</div>
+<div class="text-sm text-green-700">Yes</div>
+</div>
+<div class="bg-blue-100 rounded-lg p-4 text-center">
+<div class="text-2xl font-bold text-blue-600" id="digitalAbstainVotes">0</div>
+<div class="text-sm text-blue-700">Abstain</div>
+</div>
+<div class="bg-red-100 rounded-lg p-4 text-center">
+<div class="text-2xl font-bold text-red-600" id="digitalNoVotes">0</div>
+<div class="text-sm text-red-700">No</div>
+</div>
+</div>
+<div class="flex justify-between items-center">
+<div class="text-sm text-gray-600">
+<span id="digitalVoteProgress">0</span> of <span id="digitalTotalVotes">0</span> delegates voted
+</div>
+<div class="flex gap-2">
+<button class="action-button bg-green-500 text-white" onclick="endDigitalVoting()">
+<i class="fas fa-stop mr-1"></i>End Voting
+</button>
+<button class="action-button bg-blue-500 text-white" onclick="refreshDigitalResults()">
+<i class="fas fa-sync-alt mr-1"></i>Refresh
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section class="hidden p-4" id="delegateRanking">
+    <h2 class="text-xl font-semibold mb-4 text-blue-700 flex items-center">
+        <i class="fas fa-star mr-2"></i>Delegate Ranking
+    </h2>
+    <div class="flex flex-col md:flex-row gap-4 mb-4">
+        <input type="text" id="delegateSearch" placeholder="Search delegates..." class="compact-input border rounded-lg text-base flex-1 p-2">
+        <select id="sortDelegates" class="compact-select border rounded-lg text-base p-2">
+            <option value="name">Sort by Name</option>
+            <option value="rating">Sort by Average Rating</option>
+        </select>
+    </div>
+    <div id="delegateRankingList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        </div>
+</section>
+
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" id="settingsModal">
+<div class="settings-modal">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-2xl font-bold">Settings</h3>
+<button class="text-gray-500 hover:text-gray-700" onclick="closeModal('settingsModal')">
+<i class="fas fa-times"></i>
+</button>
+</div>
+<div class="settings-section">
+<h4 class="text-lg font-semibold mb-2">Committee Information</h4>
+<div class="space-y-3">
+<div>
+<label class="block text-sm font-medium text-gray-700" for="committeeNameInput">Committee Name</label>
+<input class="compact-input mt-1 block w-full border border-gray-300 rounded-md shadow-sm" id="committeeNameInput" type="text"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700" for="sessionTimeInput">Session Time (minutes)</label>
+<input class="compact-input mt-1 block w-full border border-gray-300 rounded-md shadow-sm" id="sessionTimeInput" min="0" type="number" value="300"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700" for="speakerTimeInput">Default Speaker Time (seconds)</label>
+<input class="compact-input mt-1 block w-full border border-gray-300 rounded-md shadow-sm" id="speakerTimeInput" min="0" type="number" value="90"/>
+</div>
+<div class="flex items-center">
+<input class="h-4 w-4 text-blue-600 border-gray-300 rounded" id="crisisModeToggle" type="checkbox"/>
+<label class="ml-2 block text-sm font-medium text-gray-700" for="crisisModeToggle">Crisis Mode</label>
+</div>
+</div>
+</div>
+<div class="settings-section">
+<h4 class="text-lg font-semibold mb-2">Data Management</h4>
+<div class="space-y-3">
+<div>
+<label class="block text-sm font-medium text-gray-700" for="importFileInput">Import Data (.json)</label>
+<input accept=".json" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" id="importFileInput" type="file"/>
+</div>
+<button class="action-button bg-blue-500 text-white" onclick="exportData()">
+<i class="fas fa-download mr-1"></i>Export All Data
+          </button>
+<button class="action-button bg-red-500 text-white" onclick="confirmClearAllData()">
+<i class="fas fa-trash mr-1"></i>Clear All Data
+          </button>
+</div>
+</div>
+
+<div class="settings-section">
+    <h3 class="text-lg font-semibold mb-2">Delegate Ranking Criteria</h3>
+    <div id="rankingCriteriaInputs" class="space-y-2 mb-4">
+        </div>
+    <button class="action-button bg-blue-500 text-white" onclick="saveRankingCriteria()">
+        <i class="fas fa-save mr-1"></i>Save Criteria
+    </button>
+</div>
+
+<div class="modal-actions flex justify-end">
+<button class="modal-button modal-button-secondary" onclick="closeModal('settingsModal')">Close</button>
+</div>
+</div>
+</div>
+
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" id="countrySelectorModal">
+<div class="country-selector-modal">
+<h3 class="text-xl font-semibold mb-4" id="countrySelectorTitle">Select Delegates</h3>
+<input class="country-search compact-input" id="countrySearchInput" placeholder="Search countries..." type="text"/>
+<div class="country-list" id="countryList">
+</div>
+<div class="mt-3">
+<button id="toggleCustomDelegateArea" class="modal-button modal-button-secondary">Add Custom Delegate</button>
+<div id="customDelegateArea" class="hidden mt-3">
+<label class="block text-sm font-medium text-gray-700 mb-1">Enter names separated by commas</label>
+<textarea id="customDelegateNames" class="compact-input w-full p-2 border rounded-md" placeholder="Example: Name1, Name2, Name3"></textarea>
+<div class="modal-actions mt-2">
+<button class="modal-button modal-button-primary" id="addCustomDelegatesBtn">Add</button>
+</div>
+</div>
+
+</div>
+<div class="modal-actions">
+<button class="modal-button modal-button-secondary" onclick="closeModal('countrySelectorModal')">Cancel</button>
+<button class="modal-button modal-button-primary" id="addSelectedCountriesBtn">Add Selected</button>
+</div>
+</div>
+</div>
+
+<!-- Remove Delegate Modal (separate overlay) -->
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" id="removeDelegateModal">
+<div class="country-selector-modal">
+<h3 class="text-xl font-semibold mb-4">Remove Delegates</h3>
+<input class="country-search compact-input" id="removeDelegateSearch" type="text" placeholder="Search delegates...">
+<div class="country-list" id="removeDelegateList"></div>
+<div class="modal-actions">
+<button class="modal-button modal-button-secondary" onclick="closeModal('removeDelegateModal')">Cancel</button>
+<button class="modal-button modal-button-primary" id="confirmRemoveDelegatesBtn">Remove Selected</button>
+</div>
+</div>
+</div>
+
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" id="quickMotionPopup">
+<div class="bg-white rounded-lg p-6 shadow-xl w-96">
+<h3 class="text-xl font-semibold mb-4">Propose Motion</h3>
+<input class="compact-input w-full p-2 border rounded-md mb-3" id="motionTopic" placeholder="Motion topic (e.g., Unmoderated Caucus)" type="text"/>
+<div class="flex items-center gap-2 mb-3">
+<input class="compact-input flex-1 p-2 border rounded-md" id="motionDuration" placeholder="Duration" type="number"/>
+<select class="compact-select p-2 border rounded-md" id="motionDurationUnit">
+<option value="minutes">minutes</option>
+<option value="seconds">seconds</option>
+</select>
+</div>
+<input class="compact-input w-full p-2 border rounded-md mb-4" id="motionSpeakerTime" placeholder="Speaker Time (seconds, if applicable)" type="number"/>
+<div class="flex justify-end gap-2">
+<button class="modal-button modal-button-secondary" onclick="closeModal('quickMotionPopup')">Cancel</button>
+<button class="modal-button modal-button-primary" onclick="addMotion()">Propose</button>
+</div>
+</div>
+</div>
+
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" id="resolutionPopup">
+<div class="bg-white rounded-lg p-6 shadow-xl w-full max-w-md">
+<h3 class="text-xl font-semibold mb-4" id="resolutionPopupTitle">New Resolution</h3>
+<input class="compact-input w-full p-2 border rounded-md mb-3" id="resolutionTitle" placeholder="Resolution Title (e.g., Draft Resolution 1.1)" type="text"/>
+<input class="compact-input w-full p-2 border rounded-md mb-3" id="resolutionTopic" placeholder="Topic (e.g., Climate Change)" type="text"/>
+<div class="mb-4">
+<label class="block text-sm font-medium text-gray-700 mb-1" for="resolutionStatus">Status</label>
+<select class="compact-select w-full p-2 border rounded-md" id="resolutionStatus">
+<option value="draft">Draft</option>
+<option value="submitted">Submitted</option>
+<option value="passed">Passed</option>
+<option value="failed">Failed</option>
+</select>
+</div>
+<div class="flex justify-end gap-2">
+<button class="modal-button modal-button-secondary" onclick="closeModal('resolutionPopup')">Cancel</button>
+<button class="modal-button modal-button-primary" onclick="saveResolution()">Save</button>
+</div>
+</div>
+</div>
+
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" id="loginModal">
+<div class="login-modal">
+<h3 class="text-xl font-semibold mb-4">Login</h3>
+<input class="login-input" id="usernameInput" placeholder="Username" type="text"/>
+<input class="login-input" id="passwordInput" placeholder="Password" type="password"/>
+<div class="modal-actions">
+<button class="modal-button modal-button-secondary" onclick="closeModal('loginModal')">Cancel</button>
+<button class="modal-button modal-button-primary" onclick="performLogin()">Login</button>
+</div>
+</div>
+</div>
+
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" id="confirmationDialog">
+<div class="confirmation-dialog">
+<h3 class="text-xl font-semibold mb-4" id="confirmationTitle">Confirm Action</h3>
+<p class="mb-6" id="confirmationMessage">Are you sure you want to proceed?</p>
+<div class="modal-actions">
+<button class="modal-button modal-button-secondary" id="cancelConfirmBtn">Cancel</button>
+<button class="modal-button modal-button-primary bg-red-500 hover:bg-red-600" id="confirmActionBtn">Confirm</button>
+</div>
+</div>
+</div>
+
+<!-- Import Delegates Modal -->
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" id="importDelegatesModal">
+<div class="bg-white rounded-lg p-6 shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-2xl font-bold text-gray-800">Import Delegates from PDF</h3>
+<button class="text-gray-500 hover:text-gray-700 text-xl" onclick="closeModal('importDelegatesModal')">
+<i class="fas fa-times"></i>
+</button>
+</div>
+
+<div class="space-y-6">
+<!-- File Upload Section -->
+<div>
+<h4 class="text-lg font-semibold mb-4 text-gray-700">Upload PDF File</h4>
+<div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+<input type="file" id="pdfFileInput" accept=".pdf" class="hidden">
+<button onclick="document.getElementById('pdfFileInput').click()" class="action-button bg-blue-500 text-white mb-4">
+<i class="fas fa-upload mr-2"></i>Choose PDF File
+</button>
+<p class="text-sm text-gray-500">Upload a PDF containing delegate lists in format: NAME-DELEGATION</p>
+<p class="text-xs text-gray-400 mt-2">Example: John Doe-Netherlands, Jane Doe-Poland</p>
+</div>
+<div id="fileInfo" class="hidden mt-3 p-3 bg-gray-100 rounded-lg">
+<p class="text-sm font-medium text-gray-700" id="fileName"></p>
+<p class="text-xs text-gray-500" id="fileSize"></p>
+</div>
+</div>
+
+<!-- Processing Section -->
+<div id="processingSection" class="hidden">
+<h4 class="text-lg font-semibold mb-4 text-gray-700">Processing PDF...</h4>
+<div class="bg-gray-100 rounded-lg p-4">
+<div class="flex items-center">
+<div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mr-3"></div>
+<span id="processingStatus">Extracting text from PDF...</span>
+</div>
+<div class="mt-3 bg-gray-200 rounded-full h-2">
+<div id="processingProgress" class="bg-blue-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+</div>
+</div>
+</div>
+
+<!-- Results Section -->
+<div id="resultsSection" class="hidden">
+<h4 class="text-lg font-semibold mb-4 text-gray-700">Found Delegates</h4>
+<div class="max-h-64 overflow-y-auto border rounded-lg p-4 bg-gray-50">
+<div id="delegatePreview" class="space-y-2">
+<!-- Preview items will be added here -->
+</div>
+</div>
+<div class="mt-4 flex items-center justify-between">
+<div class="text-sm text-gray-600">
+<span id="delegateCount">0</span> delegates found
+</div>
+<div class="flex gap-2">
+<button class="action-button bg-gray-500 text-white" onclick="closeModal('importDelegatesModal')">
+<i class="fas fa-times mr-1"></i>Cancel
+</button>
+<button class="action-button bg-green-500 text-white" id="confirmImportBtn">
+<i class="fas fa-check mr-1"></i>Import Delegates
+</button>
+</div>
+</div>
+</div>
+
+<!-- Error Section -->
+<div id="errorSection" class="hidden">
+<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+<h4 class="font-bold">Import Failed</h4>
+<p id="errorMessage" class="text-sm mt-1"></p>
+<button class="mt-3 action-button bg-red-500 text-white" onclick="closeModal('importDelegatesModal')">
+<i class="fas fa-times mr-1"></i>Close
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<script>
+    let delegates = [];
+    let resolutions = [];
+    let currentDelegateCountry = '';
+    let primarySpeakerList = [];
+    let recentPoints = [];
+    let sessionTimerInterval;
+    let sessionTime = 0; // in seconds
+    let speakerTime = 90; // Default speaker time in seconds
+    let timerInterval;
+    let timerSeconds = 0;
+    let votingHistory = [];
+    let activeVoting = false;
+    let activeVoteType = '';
+    let activeVoteSubject = '';
+    let activeVoteSessionId = null;
+    let totalVotes = 0;
+    let yesVotes = 0;
+    let noVotes = 0;
+    let abstainVotes = 0;
+    let presentVotes = 0;
+    let digitalVotingInterval = null;
+    let currentSpeakerTimeInterval;
+    let currentSpeakerSeconds = 0;
+    let loginStatus = false;
+    let crisisMode = false;
+    let delegateRatings = {}; // New object for delegate ratings
+    let rankingCriteria = ['Speaking Quality', 'Negotiation Skills', 'Research Depth', 'Engagement', 'Diplomacy']; // Default criteria
+    // SerpAPI (Google Images) key for fetching delegate photos
+    const serpApiKey = 'a13ae05ee4238e4436c5aed56be537d2f8888392c860ce4450bda9720ac2f73a';
+
+    // Function to show notification messages
+    function showNotification(message, type = 'success') {
+        const notification = document.createElement('div');
+        notification.className = `fixed bottom-4 left-1/2 -translate-x-1/2 p-3 rounded-lg shadow-lg text-white z-50 notification-${type}`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+
+    // Modal functions
+    function showModal(id) {
+        document.getElementById(id).classList.remove('hidden');
+    }
+
+    function closeModal(id) {
+        document.getElementById(id).classList.add('hidden');
+    }
+
+    async function fetchImageForName(name) {
+        try {
+            if (!serpApiKey) return '';
+            const query = encodeURIComponent(`${name} headshot`);
+            const url = `https://serpapi.com/search.json?engine=google_images&q=${query}&api_key=${serpApiKey}&ijn=0&safe=active`;
+            const res = await fetch(url);
+            if (!res.ok) return '';
+            const data = await res.json();
+            const first = (data && data.images_results && data.images_results[0]) || null;
+            const imageUrl = first?.thumbnail || first?.original || first?.link || '';
+            return imageUrl || '';
+        } catch (e) {
+            return '';
+        }
+    }
+
+    // Data persistence
+    async function saveData() {
+        const storedDocName = localStorage.getItem('chairlinkUser');
+        const DocName = JSON.parse(storedDocName);
+        localStorage.setItem('chairlinkResolutions', JSON.stringify(resolutions));
+        localStorage.setItem('chairlinkSpeakerList', JSON.stringify(primarySpeakerList));
+        localStorage.setItem('chairlinkRecentPoints', JSON.stringify(recentPoints));
+        localStorage.setItem('chairlinkSessionTime', sessionTime);
+        localStorage.setItem('chairlinkSpeakerTime', speakerTime);
+        localStorage.setItem('chairlinkVotingHistory', JSON.stringify(votingHistory));
+        localStorage.setItem('chairlinkLoginStatus', loginStatus);
+        localStorage.setItem('chairlinkCrisisMode', crisisMode);
+        localStorage.setItem('chairlinkDelegateRatings', JSON.stringify(delegateRatings)); // Save delegate ratings
+        localStorage.setItem('chairlinkRankingCriteria', JSON.stringify(rankingCriteria)); // Save ranking criteria
+        showNotification("Data saved successfully!");
+        try {
+      await db.collection("users").doc(DocName.username).set({
+        chairlinkDelegates: delegates,
+        chairlinkResolutions: resolutions,
+        chairlinkSpeakerList: primarySpeakerList,
+        chairlinkRecentPoints: recentPoints,
+        chairlinkSessionTime: sessionTime,
+        chairlinkSpeakerTime: speakerTime,
+        chairlinkVotingHistory: votingHistory,
+        chairlinkCrisisMode: crisisMode,
+        chairlinkDelegateRatings: delegateRatings,
+        chairlinkRankingCriteria: rankingCriteria,
+        merge: true
+      });
+
+    } catch (error) {
+      console.error("Error saving data:", error);
+    }
+    }
+
+    async function loadData() {
+      const storedDocName = localStorage.getItem('chairlinkUser');
+      const DocName = JSON.parse(storedDocName);
+  try {
+    // Get the Firestore doc where all chairlink data lives
+    const docRef = db.collection("users").doc(DocName.username);
+    const docSnap = await docRef.get();
+
+    if (docSnap.exists) {
+      const data = docSnap.data();
+
+      // Delegates
+      if (data.chairlinkDelegates) {
+        delegates = data.chairlinkDelegates;
+        delegates.forEach(d => { if (typeof d.poiCount !== 'number') d.poiCount = 0; });
+        renderRollCallGrid();
+        updateDashboardStats();
+      }
+
+      // Resolutions
+      if (data.chairlinkResolutions) {
+        resolutions = data.chairlinkResolutions;
+        renderResolutions();
+      }
+
+      // Speaker list
+      if (data.chairlinkSpeakerList) {
+        primarySpeakerList = data.chairlinkSpeakerList;
+        renderSpeakerList('primary');
+      }
+
+      // Recent points
+      if (data.chairlinkRecentPoints) {
+        recentPoints = data.chairlinkRecentPoints;
+        renderRecentPoints();
+      }
+
+      // Session time
+      if (data.chairlinkSessionTime !== undefined) {
+        sessionTime = parseInt(data.chairlinkSessionTime);
+        updateSessionTimerDisplay();
+      }
+
+      // Speaker time
+      if (data.chairlinkSpeakerTime !== undefined) {
+        speakerTime = parseInt(data.chairlinkSpeakerTime);
+        document.getElementById('speakerTimeInput').value = speakerTime;
+        document.getElementById('modSpeakerTime').value = speakerTime;
+      }
+
+      // Voting history
+      if (data.chairlinkVotingHistory) {
+        votingHistory = data.chairlinkVotingHistory;
+        renderVotingHistory();
+      }
+
+      // Login status
+      if (data.chairlinkLoginStatus) {
+        loginStatus = true;
+        document.getElementById('loginStatus').textContent = 'Logout';
+      }
+
+      // Crisis mode
+      if (data.chairlinkCrisisMode) {
+        crisisMode = true;
+        document.getElementById('crisisModeBtn').classList.add('crisis-flash');
+        document.getElementById('crisisModeToggle').checked = true;
+      }
+
+      // Delegate ratings
+      if (data.chairlinkDelegateRatings) {
+        delegateRatings = data.chairlinkDelegateRatings;
+      }
+
+      // Ranking criteria
+      if (data.chairlinkRankingCriteria) {
+        rankingCriteria = data.chairlinkRankingCriteria;
+      }
+
+      renderDelegateRanking();
+      renderRankingCriteriaInputs();
+
+      showNotification("Data loaded from Firestore!");
+    } else {
+      console.log("No Firestore data found.");
+    }
+  } catch (err) {
+    console.error("Error loading Firestore data:", err);
+  }
+}
+
+    function clearAllData() {
+        localStorage.clear();
+        delegates = [];
+        resolutions = [];
+        primarySpeakerList = [];
+        recentPoints = [];
+        sessionTime = 0;
+        speakerTime = 90;
+        votingHistory = [];
+        activeVoting = false;
+        loginStatus = false;
+        crisisMode = false;
+        delegateRatings = {}; // Clear ratings
+        rankingCriteria = ['Speaking Quality', 'Negotiation Skills', 'Research Depth', 'Engagement', 'Diplomacy']; // Reset criteria
+        loadData(); // Reload to reflect empty state
+        showNotification('All data cleared!', 'error');
+        closeModal('confirmationDialog');
+    }
+
+    // Theme handling
+    function loadTheme() {
+        const savedTheme = localStorage.getItem('chairlinkTheme') || 'light';
+        document.body.className = `font-sans theme-${savedTheme}`;
+        // Apply theme classes to relevant elements if they are not body-level
+        // For example, if you have a top-level div with bg-primary:
+        // document.querySelector('.some-primary-bg-div').classList.add(`theme-${savedTheme}`);
+        document.getElementById('themeSelector').value = savedTheme;
+    }
+
+    document.getElementById('themeSelector').addEventListener('change', (e) => {
+        const selectedTheme = e.target.value;
+        localStorage.setItem('chairlinkTheme', selectedTheme);
+        loadTheme();
+    });
+
+    // Tab switching
+    let activeTab = 'dashboard';
+    function showTab(tabId) {
+        document.getElementById(activeTab).classList.add('hidden');
+        document.getElementById(tabId).classList.remove('hidden');
+        activeTab = tabId;
+
+        // Clean up timers when switching tabs
+        if (tabId !== 'caucus' && timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Only handle shortcuts when not in an input field
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+        // Space to start/pause timer (only in caucus tab)
+        if (e.key === ' ' && document.getElementById('caucus').classList.contains('hidden') === false) {
+            e.preventDefault();
+            if (timerInterval) {
+                pauseTimer();
+            } else {
+                startTimer();
+            }
+        }
+
+        // N for next speaker
+        if (e.key === 'n' && document.getElementById('caucus').classList.contains('hidden') === false) {
+            e.preventDefault();
+            nextSpeaker();
+        }
+
+        // S for skip speaker
+        if (e.key === 's' && document.getElementById('caucus').classList.contains('hidden') === false) {
+            e.preventDefault();
+            skipSpeaker();
+        }
+
+        // R for reset timer
+        if (e.key === 'r' && document.getElementById('caucus').classList.contains('hidden') === false) {
+            e.preventDefault();
+            resetSpeakerTimer();
+        }
+    });
+
+    // Initialize data loading when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        loadData();
+        loadTheme();
+        loadNotes();
+    });
+
+    // Delegate Management
+    function addDelegate(country, name, flag) {
+        delegates.push({ country, name, flag, status: 'absent', points: 0, rating: {}, poiCount: 0 }); // Add poiCount
+        saveData();
+        renderRollCallGrid();
+        updateDashboardStats();
+    }
+
+    function renderRollCallGrid() {
+        const rollCallDiv = document.getElementById('rollCall');
+        rollCallDiv.innerHTML = '';
+        delegates.forEach(delegate => {
+            const statusClass = delegate.status === 'present' ? 'bg-green-100 text-green-800' :
+                                 delegate.status === 'present-voting' ? 'bg-blue-100 text-blue-800' :
+                                 'bg-red-100 text-red-800';
+            rollCallDiv.innerHTML += `
+                <div class="delegate-card border rounded-lg p-3 flex items-center shadow-sm ${statusClass}">
+                    ${delegate.flag ? `<img src="${delegate.flag}" alt="${delegate.country} flag" class="flag-icon mr-3">` : `<div class=\"w-6 h-6 mr-3 rounded-full bg-gray-300 border border-gray-200\"></div>`}
+                    <div class="flex-1">
+                        <p class="font-medium text-base">${delegate.country}</p>
+                        <p class="text-sm text-gray-600">${delegate.name}</p>
+                    </div>
+                    <div class="flex flex-col space-y-1">
+                        <button class="action-button bg-green-500 text-white text-xs px-2 py-1" onclick="toggleDelegateStatus('${delegate.country}', 'present')">P</button>
+                        <button class="action-button bg-blue-500 text-white text-xs px-2 py-1" onclick="toggleDelegateStatus('${delegate.country}', 'present-voting')">P&amp;V</button>
+                        <button class="action-button bg-red-500 text-white text-xs px-2 py-1" onclick="toggleDelegateStatus('${delegate.country}', 'absent')">A</button>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function toggleDelegateStatus(country, newStatus) {
+        const delegateIndex = delegates.findIndex(d => d.country === country);
+        if (delegateIndex !== -1) {
+            delegates[delegateIndex].status = newStatus;
+            saveData();
+            renderRollCallGrid();
+            updateDashboardStats();
+            renderDelegateRanking(); // Update ranking display when status changes
+        }
+    }
+
+    function markAllPresent() {
+        delegates.forEach(d => d.status = 'present');
+        saveData();
+        renderRollCallGrid();
+        updateDashboardStats();
+    }
+
+    function markAllPresentVoting() {
+        delegates.forEach(d => d.status = 'present-voting');
+        saveData();
+        renderRollCallGrid();
+        updateDashboardStats();
+    }
+
+    function markAllAbsent() {
+        delegates.forEach(d => d.status = 'absent');
+        saveData();
+        renderRollCallGrid();
+        updateDashboardStats();
+    }
+
+    // Country Selector for adding delegates/speakers
+    let countrySelectionMode = 'delegate'; // 'delegate' or 'speaker'
+
+    document.getElementById('addDelegateBtn').addEventListener('click', () => {
+        showCountrySelector('delegate');
+    });
+
+    function showCountrySelector(mode) {
+        countrySelectionMode = mode;
+        document.getElementById('countrySelectorTitle').textContent = mode === 'delegate' ? 'Add Delegates' : 'Add Speakers';
+        const countryListDiv = document.getElementById('countryList');
+        countryListDiv.innerHTML = '';
+        // Hide custom delegate area by default when opening
+        const customArea = document.getElementById('customDelegateArea');
+        if (customArea) customArea.classList.add('hidden');
+
+        // Clear search input on modal open
+        document.getElementById('countrySearchInput').value = '';
+
+        // Replace the sampleCountries array in the showCountrySelector function with this:
+        const sampleCountries = [
+            { name: 'Afghanistan', flag: 'https://flagcdn.com/w320/af.png' },
+            { name: 'Albania', flag: 'https://flagcdn.com/w320/al.png' },
+            { name: 'Algeria', flag: 'https://flagcdn.com/w320/dz.png' },
+            { name: 'Andorra', flag: 'https://flagcdn.com/w320/ad.png' },
+            { name: 'Angola', flag: 'https://flagcdn.com/w320/ao.png' },
+            { name: 'Antigua and Barbuda', flag: 'https://flagcdn.com/w320/ag.png' },
+            { name: 'Argentina', flag: 'https://flagcdn.com/w320/ar.png' },
+            { name: 'Armenia', flag: 'https://flagcdn.com/w320/am.png' },
+            { name: 'Australia', flag: 'https://flagcdn.com/w320/au.png' },
+            { name: 'Austria', flag: 'https://flagcdn.com/w320/at.png' },
+            { name: 'Azerbaijan', flag: 'https://flagcdn.com/w320/az.png' },
+            { name: 'Bahamas', flag: 'https://flagcdn.com/w320/bs.png' },
+            { name: 'Bahrain', flag: 'https://flagcdn.com/w320/bh.png' },
+            { name: 'Bangladesh', flag: 'https://flagcdn.com/w320/bd.png' },
+            { name: 'Barbados', flag: 'https://flagcdn.com/w320/bb.png' },
+            { name: 'Belarus', flag: 'https://flagcdn.com/w320/by.png' },
+            { name: 'Belgium', flag: 'https://flagcdn.com/w320/be.png' },
+            { name: 'Belize', flag: 'https://flagcdn.com/w320/bz.png' },
+            { name: 'Benin', flag: 'https://flagcdn.com/w320/bj.png' },
+            { name: 'Bhutan', flag: 'https://flagcdn.com/w320/bt.png' },
+            { name: 'Bolivia', flag: 'https://flagcdn.com/w320/bo.png' },
+            { name: 'Bosnia and Herzegovina', flag: 'https://flagcdn.com/w320/ba.png' },
+            { name: 'Botswana', flag: 'https://flagcdn.com/w320/bw.png' },
+            { name: 'Brazil', flag: 'https://flagcdn.com/w320/br.png' },
+            { name: 'Brunei', flag: 'https://flagcdn.com/w320/bn.png' },
+            { name: 'Bulgaria', flag: 'https://flagcdn.com/w320/bg.png' },
+            { name: 'Burkina Faso', flag: 'https://flagcdn.com/w320/bf.png' },
+            { name: 'Burundi', flag: 'https://flagcdn.com/w320/bi.png' },
+            { name: 'Cabo Verde', flag: 'https://flagcdn.com/w320/cv.png' },
+            { name: 'Cambodia', flag: 'https://flagcdn.com/w320/kh.png' },
+            { name: 'Cameroon', flag: 'https://flagcdn.com/w320/cm.png' },
+            { name: 'Canada', flag: 'https://flagcdn.com/w320/ca.png' },
+            { name: 'Central African Republic', flag: 'https://flagcdn.com/w320/cf.png' },
+            { name: 'Chad', flag: 'https://flagcdn.com/w320/td.png' },
+            { name: 'Chile', flag: 'https://flagcdn.com/w320/cl.png' },
+            { name: 'China', flag: 'https://flagcdn.com/w320/cn.png' },
+            { name: 'Colombia', flag: 'https://flagcdn.com/w320/co.png' },
+            { name: 'Comoros', flag: 'https://flagcdn.com/w320/km.png' },
+            { name: 'Congo (Congo-Brazzaville)', flag: 'https://flagcdn.com/w320/cg.png' },
+            { name: 'Costa Rica', flag: 'https://flagcdn.com/w320/cr.png' },
+            { name: 'Croatia', flag: 'https://flagcdn.com/w320/hr.png' },
+            { name: 'Cuba', flag: 'https://flagcdn.com/w320/cu.png' },
+            { name: 'Cyprus', flag: 'https://flagcdn.com/w320/cy.png' },
+            { name: 'Czechia', flag: 'https://flagcdn.com/w320/cz.png' },
+            { name: 'Democratic Republic of the Congo', flag: 'https://flagcdn.com/w320/cd.png' },
+            { name: 'Denmark', flag: 'https://flagcdn.com/w320/dk.png' },
+            { name: 'Djibouti', flag: 'https://flagcdn.com/w320/dj.png' },
+            { name: 'Dominica', flag: 'https://flagcdn.com/w320/dm.png' },
+            { name: 'Dominican Republic', flag: 'https://flagcdn.com/w320/do.png' },
+            { name: 'Ecuador', flag: 'https://flagcdn.com/w320/ec.png' },
+            { name: 'Egypt', flag: 'https://flagcdn.com/w320/eg.png' },
+            { name: 'El Salvador', flag: 'https://flagcdn.com/w320/sv.png' },
+            { name: 'Equatorial Guinea', flag: 'https://flagcdn.com/w320/gq.png' },
+            { name: 'Eritrea', flag: 'https://flagcdn.com/w320/er.png' },
+            { name: 'Estonia', flag: 'https://flagcdn.com/w320/ee.png' },
+            { name: 'Eswatini', flag: 'https://flagcdn.com/w320/sz.png' },
+            { name: 'Ethiopia', flag: 'https://flagcdn.com/w320/et.png' },
+            { name: 'Fiji', flag: 'https://flagcdn.com/w320/fj.png' },
+            { name: 'Finland', flag: 'https://flagcdn.com/w320/fi.png' },
+            { name: 'France', flag: 'https://flagcdn.com/w320/fr.png' },
+            { name: 'Gabon', flag: 'https://flagcdn.com/w320/ga.png' },
+            { name: 'Gambia', flag: 'https://flagcdn.com/w320/gm.png' },
+            { name: 'Georgia', flag: 'https://flagcdn.com/w320/ge.png' },
+            { name: 'Germany', flag: 'https://flagcdn.com/w320/de.png' },
+            { name: 'Ghana', flag: 'https://flagcdn.com/w320/gh.png' },
+            { name: 'Greece', flag: 'https://flagcdn.com/w320/gr.png' },
+            { name: 'Grenada', flag: 'https://flagcdn.com/w320/gd.png' },
+            { name: 'Guatemala', flag: 'https://flagcdn.com/w320/gt.png' },
+            { name: 'Guinea', flag: 'https://flagcdn.com/w320/gn.png' },
+            { name: 'Guinea-Bissau', flag: 'https://flagcdn.com/w320/gw.png' },
+            { name: 'Guyana', flag: 'https://flagcdn.com/w320/gy.png' },
+            { name: 'Haiti', flag: 'https://flagcdn.com/w320/ht.png' },
+            { name: 'Honduras', flag: 'https://flagcdn.com/w320/hn.png' },
+            { name: 'Hungary', flag: 'https://flagcdn.com/w320/hu.png' },
+            { name: 'Iceland', flag: 'https://flagcdn.com/w320/is.png' },
+            { name: 'India', flag: 'https://flagcdn.com/w320/in.png' },
+            { name: 'Indonesia', flag: 'https://flagcdn.com/w320/id.png' },
+            { name: 'Iran', flag: 'https://flagcdn.com/w320/ir.png' },
+            { name: 'Iraq', flag: 'https://flagcdn.com/w320/iq.png' },
+            { name: 'Ireland', flag: 'https://flagcdn.com/w320/ie.png' },
+            { name: 'Israel', flag: 'https://flagcdn.com/w320/il.png' },
+            { name: 'Italy', flag: 'https://flagcdn.com/w320/it.png' },
+            { name: 'Jamaica', flag: 'https://flagcdn.com/w320/jm.png' },
+            { name: 'Japan', flag: 'https://flagcdn.com/w320/jp.png' },
+            { name: 'Jordan', flag: 'https://flagcdn.com/w320/jo.png' },
+            { name: 'Kazakhstan', flag: 'https://flagcdn.com/w320/kz.png' },
+            { name: 'Kenya', flag: 'https://flagcdn.com/w320/ke.png' },
+            { name: 'Kiribati', flag: 'https://flagcdn.com/w320/ki.png' },
+            { name: 'Kuwait', flag: 'https://flagcdn.com/w320/kw.png' },
+            { name: 'Kyrgyzstan', flag: 'https://flagcdn.com/w320/kg.png' },
+            { name: 'Laos', flag: 'https://flagcdn.com/w320/la.png' },
+            { name: 'Latvia', flag: 'https://flagcdn.com/w320/lv.png' },
+            { name: 'Lebanon', flag: 'https://flagcdn.com/w320/lb.png' },
+            { name: 'Lesotho', flag: 'https://flagcdn.com/w320/ls.png' },
+            { name: 'Liberia', flag: 'https://flagcdn.com/w320/lr.png' },
+            { name: 'Libya', flag: 'https://flagcdn.com/w320/ly.png' },
+            { name: 'Liechtenstein', flag: 'https://flagcdn.com/w320/li.png' },
+            { name: 'Lithuania', flag: 'https://flagcdn.com/w320/lt.png' },
+            { name: 'Luxembourg', flag: 'https://flagcdn.com/w320/lu.png' },
+            { name: 'Madagascar', flag: 'https://flagcdn.com/w320/mg.png' },
+            { name: 'Malawi', flag: 'https://flagcdn.com/w320/mw.png' },
+            { name: 'Malaysia', flag: 'https://flagcdn.com/w320/my.png' },
+            { name: 'Maldives', flag: 'https://flagcdn.com/w320/mv.png' },
+            { name: 'Mali', flag: 'https://flagcdn.com/w320/ml.png' },
+            { name: 'Malta', flag: 'https://flagcdn.com/w320/mt.png' },
+            { name: 'Marshall Islands', flag: 'https://flagcdn.com/w320/mh.png' },
+            { name: 'Mauritania', flag: 'https://flagcdn.com/w320/mr.png' },
+            { name: 'Mauritius', flag: 'https://flagcdn.com/w320/mu.png' },
+            { name: 'Mexico', flag: 'https://flagcdn.com/w320/mx.png' },
+            { name: 'Micronesia', flag: 'https://flagcdn.com/w320/fm.png' },
+            { name: 'Moldova', flag: 'https://flagcdn.com/w320/md.png' },
+            { name: 'Monaco', flag: 'https://flagcdn.com/w320/mc.png' },
+            { name: 'Mongolia', flag: 'https://flagcdn.com/w320/mn.png' },
+            { name: 'Montenegro', flag: 'https://flagcdn.com/w320/me.png' },
+            { name: 'Morocco', flag: 'https://flagcdn.com/w320/ma.png' },
+            { name: 'Mozambique', flag: 'https://flagcdn.com/w320/mz.png' },
+            { name: 'Myanmar', flag: 'https://flagcdn.com/w320/mm.png' },
+            { name: 'Namibia', flag: 'https://flagcdn.com/w320/na.png' },
+            { name: 'Nauru', flag: 'https://flagcdn.com/w320/nr.png' },
+            { name: 'Nepal', flag: 'https://flagcdn.com/w320/np.png' },
+            { name: 'Netherlands', flag: 'https://flagcdn.com/w320/nl.png' },
+            { name: 'New Zealand', flag: 'https://flagcdn.com/w320/nz.png' },
+            { name: 'Nicaragua', flag: 'https://flagcdn.com/w320/ni.png' },
+            { name: 'Niger', flag: 'https://flagcdn.com/w320/ne.png' },
+            { name: 'Nigeria', flag: 'https://flagcdn.com/w320/ng.png' },
+            { name: 'North Korea', flag: 'https://flagcdn.com/w320/kp.png' },
+            { name: 'North Macedonia', flag: 'https://flagcdn.com/w320/mk.png' },
+            { name: 'Norway', flag: 'https://flagcdn.com/w320/no.png' },
+            { name: 'Oman', flag: 'https://flagcdn.com/w320/om.png' },
+            { name: 'Pakistan', flag: 'https://flagcdn.com/w320/pk.png' },
+            { name: 'Palau', flag: 'https://flagcdn.com/w320/pw.png' },
+            { name: 'Palestine', flag: 'https://flagcdn.com/w320/ps.png' },
+            { name: 'Panama', flag: 'https://flagcdn.com/w320/pa.png' },
+            { name: 'Papua New Guinea', flag: 'https://flagcdn.com/w320/pg.png' },
+            { name: 'Paraguay', flag: 'https://flagcdn.com/w320/py.png' },
+            { name: 'Peru', flag: 'https://flagcdn.com/w320/pe.png' },
+            { name: 'Philippines', flag: 'https://flagcdn.com/w320/ph.png' },
+            { name: 'Poland', flag: 'https://flagcdn.com/w320/pl.png' },
+            { name: 'Portugal', flag: 'https://flagcdn.com/w320/pt.png' },
+            { name: 'Qatar', flag: 'https://flagcdn.com/w320/qa.png' },
+            { name: 'Romania', flag: 'https://flagcdn.com/w320/ro.png' },
+            { name: 'Russia', flag: 'https://flagcdn.com/w320/ru.png' },
+            { name: 'Rwanda', flag: 'https://flagcdn.com/w320/rw.png' },
+            { name: 'Saint Kitts and Nevis', flag: 'https://flagcdn.com/w320/kn.png' },
+            { name: 'Saint Lucia', flag: 'https://flagcdn.com/w320/lc.png' },
+            { name: 'Saint Vincent and the Grenadines', flag: 'https://flagcdn.com/w320/vc.png' },
+            { name: 'Samoa', flag: 'https://flagcdn.com/w320/ws.png' },
+            { name: 'San Marino', flag: 'https://flagcdn.com/w320/sm.png' },
+            { name: 'Sao Tome and Principe', flag: 'https://flagcdn.com/w320/st.png' },
+            { name: 'Saudi Arabia', flag: 'https://flagcdn.com/w320/sa.png' },
+            { name: 'Senegal', flag: 'https://flagcdn.com/w320/sn.png' },
+            { name: 'Serbia', flag: 'https://flagcdn.com/w320/rs.png' },
+            { name: 'Seychelles', flag: 'https://flagcdn.com/w320/sc.png' },
+            { name: 'Sierra Leone', flag: 'https://flagcdn.com/w320/sl.png' },
+            { name: 'Singapore', flag: 'https://flagcdn.com/w320/sg.png' },
+            { name: 'Slovakia', flag: 'https://flagcdn.com/w320/sk.png' },
+            { name: 'Slovenia', flag: 'https://flagcdn.com/w320/si.png' },
+            { name: 'Solomon Islands', flag: 'https://flagcdn.com/w320/sb.png' },
+            { name: 'Somalia', flag: 'https://flagcdn.com/w320/so.png' },
+            { name: 'South Africa', flag: 'https://flagcdn.com/w320/za.png' },
+            { name: 'South Korea', flag: 'https://flagcdn.com/w320/kr.png' },
+            { name: 'South Sudan', flag: 'https://flagcdn.com/w320/ss.png' },
+            { name: 'Spain', flag: 'https://flagcdn.com/w320/es.png' },
+            { name: 'Sri Lanka', flag: 'https://flagcdn.com/w320/lk.png' },
+            { name: 'Sudan', flag: 'https://flagcdn.com/w320/sd.png' },
+            { name: 'Suriname', flag: 'https://flagcdn.com/w320/sr.png' },
+            { name: 'Sweden', flag: 'https://flagcdn.com/w320/se.png' },
+            { name: 'Switzerland', flag: 'https://flagcdn.com/w320/ch.png' },
+            { name: 'Syria', flag: 'https://flagcdn.com/w320/sy.png' },
+            { name: 'Tajikistan', flag: 'https://flagcdn.com/w320/tj.png' },
+            { name: 'Tanzania', flag: 'https://flagcdn.com/w320/tz.png' },
+            { name: 'Thailand', flag: 'https://flagcdn.com/w320/th.png' },
+            { name: 'Timor-Leste', flag: 'https://flagcdn.com/w320/tl.png' },
+            { name: 'Togo', flag: 'https://flagcdn.com/w320/tg.png' },
+            { name: 'Tonga', flag: 'https://flagcdn.com/w320/to.png' },
+            { name: 'Trinidad and Tobago', flag: 'https://flagcdn.com/w320/tt.png' },
+            { name: 'Tunisia', flag: 'https://flagcdn.com/w320/tn.png' },
+            { name: 'Turkey', flag: 'https://flagcdn.com/w320/tr.png' },
+            { name: 'Turkmenistan', flag: 'https://flagcdn.com/w320/tm.png' },
+            { name: 'Tuvalu', flag: 'https://flagcdn.com/w320/tv.png' },
+            { name: 'Uganda', flag: 'https://flagcdn.com/w320/ug.png' },
+            { name: 'Ukraine', flag: 'https://flagcdn.com/w320/ua.png' },
+            { name: 'United Arab Emirates', flag: 'https://flagcdn.com/w320/ae.png' },
+            { name: 'United Kingdom', flag: 'https://flagcdn.com/w320/gb.png' },
+            { name: 'United States', flag: 'https://flagcdn.com/w320/us.png' },
+            { name: 'Uruguay', flag: 'https://flagcdn.com/w320/uy.png' },
+            { name: 'Uzbekistan', flag: 'https://flagcdn.com/w320/uz.png' },
+            { name: 'Vanuatu', flag: 'https://flagcdn.com/w320/vu.png' },
+            { name: 'Vatican City', flag: 'https://flagcdn.com/w320/va.png' },
+            { name: 'Venezuela', flag: 'https://flagcdn.com/w320/ve.png' },
+            { name: 'Vietnam', flag: 'https://flagcdn.com/w320/vn.png' },
+            { name: 'Yemen', flag: 'https://flagcdn.com/w320/ye.png' },
+            { name: 'Zambia', flag: 'https://flagcdn.com/w320/zm.png' },
+            { name: 'Zimbabwe', flag: 'https://flagcdn.com/w320/zw.png' }
+        ];
+
+        sampleCountries.forEach(country => {
+            const countryName = country.name;
+            const flagUrl = country.flag;
+
+            // Check if delegate already exists for 'delegate' mode
+            const isDelegateAdded = delegates.some(d => d.country === countryName);
+            // Check if speaker already exists for 'speaker' mode
+            const isSpeakerAdded = primarySpeakerList.some(s => s.sCountry === countryName);
+
+            // If in delegate mode and delegate already exists, or in speaker mode and speaker already exists, skip adding to list
+            if ((mode === 'delegate' && isDelegateAdded) || (mode === 'speaker' && isSpeakerAdded)) {
+                return;
+            }
+
+            countryListDiv.innerHTML += `
+                <div class="country-item">
+                    <input type="checkbox" id="country-${countryName.replace(/\s/g, '-')}" value="${countryName}" data-flag="${flagUrl}">
+                    <label for="country-${countryName.replace(/\s/g, '-')}" class="flex items-center flex-1 ml-2 cursor-pointer">
+                        <img src="${flagUrl}" alt="${countryName} flag" class="w-6 h-6 mr-3 rounded-full object-cover border border-gray-200">
+                        ${countryName}
+                    </label>
+                </div>
+            `;
+        });
+
+        showModal('countrySelectorModal');
+    }
+
+    document.getElementById('countrySearchInput').addEventListener('keyup', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        document.querySelectorAll('#countryList .country-item').forEach(item => {
+            const countryName = item.querySelector('label').textContent.toLowerCase();
+            if (countryName.includes(searchTerm)) {
+                item.style.display = 'flex';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+
+    document.getElementById('addSelectedCountriesBtn').addEventListener('click', function() {
+        const selectedCheckboxes = document.querySelectorAll('#countryList input[type="checkbox"]:checked');
+        if (selectedCheckboxes.length === 0) {
+            showNotification('Please select at least one country.', 'warning');
+            return;
+        }
+
+        selectedCheckboxes.forEach(checkbox => {
+            const countryName = checkbox.value;
+            const flagUrl = checkbox.dataset.flag;
+            if (countrySelectionMode === 'delegate') {
+                const existingDelegate = delegates.find(d => d.country === countryName);
+                if (!existingDelegate) { // Double check to prevent duplicates
+                    addDelegate(countryName, countryName, flagUrl); // Use country name as delegate name by default
+                }
+            } else if (countrySelectionMode === 'speaker') {
+                const existingSpeaker = primarySpeakerList.find(s => s.sCountry === countryName);
+                if (!existingSpeaker) { // Double check to prevent duplicates
+                    addSpeakerToPrimaryList(countryName); // speaker list only stores country name
+                }
+            }
+        });
+        closeModal('countrySelectorModal');
+        showNotification('Selected countries added!', 'success');
+    });
+
+    // Toggle custom delegate area inside country selector
+    document.getElementById('toggleCustomDelegateArea').addEventListener('click', function() {
+        const area = document.getElementById('customDelegateArea');
+        area.classList.toggle('hidden');
+    });
+
+    // Add custom delegates by comma-separated names
+    document.getElementById('addCustomDelegatesBtn').addEventListener('click', async function() {
+        const textarea = document.getElementById('customDelegateNames');
+        const raw = (textarea.value || '').trim();
+        if (!raw) {
+            showNotification('Please enter at least one name.', 'warning');
+            return;
+        }
+        const names = raw.split(',').map(n => n.trim()).filter(n => n.length > 0);
+        if (names.length === 0) {
+            showNotification('Please enter valid names separated by commas.', 'warning');
+            return;
+        }
+        let addedCount = 0;
+        for (const name of names) {
+            const existing = delegates.find(d => d.country === name);
+            if (!existing) {
+                let imageUrl = await fetchImageForName(name);
+                // Tiny delay to be nice to API
+                await new Promise(r => setTimeout(r, 250));
+                addDelegate(name, name, imageUrl || '');
+                addedCount++;
+            }
+        }
+        if (addedCount > 0) {
+            showNotification(`${addedCount} custom delegate(s) added!`, 'success');
+            textarea.value = '';
+            renderRollCallGrid();
+            updateDashboardStats();
+            closeModal('countrySelectorModal');
+        } else {
+            showNotification('All entered names already exist as delegates.', 'info');
+        }
+    });
+
+    // Session Timer and Current Speaker Timer (Existing functions, simplified for brevity)
+    function startSessionTimer() {
+        if (sessionTimerInterval) clearInterval(sessionTimerInterval);
+        sessionTimerInterval = setInterval(() => {
+            sessionTime++;
+            updateSessionTimerDisplay();
+        }, 1000);
+    }
+    function updateSessionTimerDisplay() {
+        const hours = String(Math.floor(sessionTime / 3600)).padStart(2, '0');
+        const minutes = String(Math.floor((sessionTime % 3600) / 60)).padStart(2, '0');
+        const seconds = String(sessionTime % 60).padStart(2, '0');
+        document.getElementById('sessionTimer').textContent = `${hours}:${minutes}:${seconds}`;
+    }
+    function startTimer() {
+        if (timerInterval) clearInterval(timerInterval);
+        if (currentSpeakerSeconds <= 0 && primarySpeakerList.length > 0) {
+            currentSpeakerSeconds = speakerTime; // Reset to default if timer finished
+        }
+        if (currentSpeakerSeconds > 0) {
+            timerInterval = setInterval(() => {
+                if (currentSpeakerSeconds > 0) {
+                    currentSpeakerSeconds--;
+                    const minutes = String(Math.floor(currentSpeakerSeconds / 60)).padStart(2, '0');
+                    const seconds = String(currentSpeakerSeconds % 60).padStart(2, '0');
+                    document.getElementById('timer').textContent = `${minutes}:${seconds}`;
+                } else {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    document.getElementById('timer').textContent = '00:00';
+                    showNotification('Speaker time ended!', 'warning');
+                }
+            }, 1000);
+            document.getElementById('currentSpeakerTime').textContent = `${String(Math.floor(currentSpeakerSeconds / 60)).padStart(2, '0')}:${String(currentSpeakerSeconds % 60).padStart(2, '0')}`;
+        }
+    }
+    function pauseTimer() {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            showNotification('Timer paused.', 'warning');
+        }
+    }
+    function resetSpeakerTimer() {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        currentSpeakerSeconds = speakerTime;
+        const minutes = String(Math.floor(currentSpeakerSeconds / 60)).padStart(2, '0');
+        const seconds = String(currentSpeakerSeconds % 60).padStart(2, '0');
+        document.getElementById('timer').textContent = `${minutes}:${seconds}`;
+        document.getElementById('currentSpeakerTime').textContent = `${minutes}:${seconds}`;
+        showNotification('Speaker timer reset.', 'info');
+    }
+    function adjustTime(seconds) {
+        currentSpeakerSeconds = Math.max(0, currentSpeakerSeconds + seconds);
+        const minutes = String(Math.floor(currentSpeakerSeconds / 60)).padStart(2, '0');
+        const secs = String(currentSpeakerSeconds % 60).padStart(2, '0');
+        document.getElementById('timer').textContent = `${minutes}:${secs}`;
+        document.getElementById('currentSpeakerTime').textContent = `${minutes}:${secs}`;
+    }
+
+    // Speaker List Management
+    function addSpeakerToPrimaryList(country) {
+        if (!primarySpeakerList.some(s => s.sCountry === country)) {
+            primarySpeakerList.push({ sCountry: country, timeSpoken: 0 });
+            saveData();
+            renderSpeakerList('primary');
+            showNotification(`${country} added to speaker list.`, 'info');
+        } else {
+            showNotification(`${country} is already in the speaker list.`, 'warning');
+        }
+    }
+
+    function removeSpeaker(country, listType) {
+        if (listType === 'primary') {
+            primarySpeakerList = primarySpeakerList.filter(s => s.sCountry !== country);
+        }
+        saveData();
+        renderSpeakerList(listType);
+        updateDashboardStats();
+    }
+
+    function nextSpeaker() {
+        pauseTimer(); // Pause current timer if running
+        if (primarySpeakerList.length > 0) {
+            const currentSpeaker = primarySpeakerList.shift(); // Remove current speaker from top
+            // You might want to save currentSpeaker's timeSpoken here
+            primarySpeakerList.push(currentSpeaker); // Add to end of list
+            saveData();
+            renderSpeakerList('primary');
+            updateCurrentSpeakerDisplay();
+            resetSpeakerTimer(); // Reset timer for the new speaker
+            showNotification('Next speaker in line.', 'info');
+        } else {
+            showNotification('Speaker list is empty!', 'warning');
+            document.getElementById('currentSpeaker').textContent = 'No speaker';
+            document.getElementById('currentSpeakerCountry').textContent = '-';
+            resetSpeakerTimer();
+        }
+    }
+
+    function skipSpeaker() {
+        pauseTimer();
+        if (primarySpeakerList.length > 0) {
+            primarySpeakerList.shift(); // Simply remove the current speaker
+            saveData();
+            renderSpeakerList('primary');
+            updateCurrentSpeakerDisplay();
+            resetSpeakerTimer();
+            showNotification('Current speaker skipped.', 'info');
+        } else {
+            showNotification('Speaker list is empty!', 'warning');
+        }
+    }
+
+    function renderSpeakerList(listType) {
+        const listDiv = document.getElementById('primarySpeakerList');
+        listDiv.innerHTML = '';
+        if (primarySpeakerList.length === 0) {
+            listDiv.innerHTML = '<p class="text-gray-500 italic">No speakers in list.</p>';
+        } else {
+            primarySpeakerList.forEach((speaker, index) => {
+                listDiv.innerHTML += `
+                    <div class="flex items-center justify-between p-2 bg-gray-50 rounded-md border border-gray-200">
+                        <span class="font-medium">${index + 1}. ${speaker.sCountry}</span>
+                        <button class="text-red-500 hover:text-red-700 text-lg" onclick="removeSpeaker('${speaker.sCountry}', '${listType}')">
+                            <i class="fas fa-minus-circle"></i>
+                        </button>
+                    </div>
+                `;
+            });
+        }
+        updateCurrentSpeakerDisplay();
+    }
+
+    function randomizeSpeakerList(listType) {
+        if (listType === 'primary') {
+            for (let i = primarySpeakerList.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [primarySpeakerList[i], primarySpeakerList[j]] = [primarySpeakerList[j], primarySpeakerList[i]];
+            }
+        }
+        saveData();
+        renderSpeakerList(listType);
+        showNotification('Speaker list randomized!', 'info');
+    }
+
+    function confirmClearSpeakerList(listType) {
+        document.getElementById('confirmationTitle').textContent = 'Clear Speaker List';
+        document.getElementById('confirmationMessage').textContent = `Are you sure you want to clear the ${listType} speaker list? This action cannot be undone.`;
+        showModal('confirmationDialog');
+        document.getElementById('confirmActionBtn').onclick = () => {
+            if (listType === 'primary') {
+                primarySpeakerList = [];
+            }
+            saveData();
+            renderSpeakerList(listType);
+            updateCurrentSpeakerDisplay();
+            showNotification('Speaker list cleared!', 'error');
+            closeModal('confirmationDialog');
+        };
+        document.getElementById('cancelConfirmBtn').onclick = () => closeModal('confirmationDialog');
+    }
+
+    function updateCurrentSpeakerDisplay() {
+        if (primarySpeakerList.length > 0) {
+            document.getElementById('currentSpeaker').textContent = primarySpeakerList[0].sCountry;
+            document.getElementById('currentSpeakerCountry').innerHTML = `
+                <img src="${delegates.find(d => d.country === primarySpeakerList[0].sCountry)?.flag || ''}"
+                     alt="${primarySpeakerList[0].sCountry} flag" class="w-5 h-5 rounded-full object-cover mr-2 border border-gray-200">
+                ${primarySpeakerList[0].sCountry}
+            `;
+        } else {
+            document.getElementById('currentSpeaker').textContent = 'No speaker';
+            document.getElementById('currentSpeakerCountry').textContent = '-';
+        }
+    }
+
+    function updateDashboardStats() {
+        document.getElementById('totalDelegates').textContent = delegates.length;
+        document.getElementById('presentDelegates').textContent = delegates.filter(d => d.status === 'present').length;
+        document.getElementById('votingDelegates').textContent = delegates.filter(d => d.status === 'present-voting').length;
+        document.getElementById('absentDelegates').textContent = delegates.filter(d => d.status === 'absent').length;
+    }
+
+    // Remove Delegate Flow
+    function showRemoveDelegateModal() {
+        const listDiv = document.getElementById('removeDelegateList');
+        const search = document.getElementById('removeDelegateSearch');
+        listDiv.innerHTML = '';
+        search.value = '';
+        delegates.forEach(d => {
+            const id = `del-${d.country.replace(/\s/g,'-')}`;
+            listDiv.innerHTML += `
+                <div class="country-item">
+                    <input type="checkbox" id="${id}" value="${d.country}">
+                    <label for="${id}" class="flex items-center flex-1 ml-2 cursor-pointer">
+                        ${d.flag ? `<img src="${d.flag}" class=\"w-6 h-6 mr-3 rounded-full object-cover border border-gray-200\">` : `<div class=\"w-6 h-6 mr-3 rounded-full bg-gray-300 border border-gray-200\"></div>`}
+                        <span class="font-medium">${d.country}</span>
+                        <span class="ml-2 text-gray-500 text-sm">(${d.name})</span>
+                    </label>
+                </div>
+            `;
+        });
+        showModal('removeDelegateModal');
+    }
+
+    document.getElementById('removeDelegateSearch').addEventListener('keyup', function(e) {
+        const term = e.target.value.toLowerCase();
+        document.querySelectorAll('#removeDelegateList .country-item').forEach(item => {
+            const txt = item.textContent.toLowerCase();
+            item.style.display = txt.includes(term) ? 'flex' : 'none';
+        });
+    });
+
+    document.getElementById('confirmRemoveDelegatesBtn').addEventListener('click', function() {
+        const selected = Array.from(document.querySelectorAll('#removeDelegateList input[type="checkbox"]:checked')).map(cb => cb.value);
+        if (selected.length === 0) {
+            showNotification('Please select at least one delegate to remove.', 'warning');
+            return;
+        }
+        // Remove from delegates
+        delegates = delegates.filter(d => !selected.includes(d.country));
+        // Also clean speaker list entries for removed delegates
+        primarySpeakerList = primarySpeakerList.filter(s => !selected.includes(s.sCountry));
+        saveData();
+        renderRollCallGrid();
+        renderSpeakerList('primary');
+        updateDashboardStats();
+        renderDelegateRanking();
+        closeModal('removeDelegateModal');
+        showNotification('Selected delegates removed.', 'error');
+    });
+
+    // Points and Motions
+    function addPointOfOrder() {
+        const timestamp = new Date().toLocaleTimeString();
+        recentPoints.unshift({ type: 'Point of Order', timestamp: timestamp });
+        saveData();
+        renderRecentPoints();
+        showNotification('Point of Order added.', 'info');
+    }
+
+    function addMotion() {
+        const topic = document.getElementById('motionTopic').value;
+        const duration = document.getElementById('motionDuration').value;
+        const durationUnit = document.getElementById('motionDurationUnit').value;
+        const speakerTimeMotion = document.getElementById('motionSpeakerTime').value;
+
+        if (!topic) {
+            showNotification('Motion topic cannot be empty.', 'error');
+            return;
+        }
+
+        const timestamp = new Date().toLocaleTimeString();
+        recentPoints.unshift({
+            type: 'Motion',
+            topic,
+            duration: duration ? `${duration} ${durationUnit}` : 'N/A',
+            speakerTime: speakerTimeMotion ? `${speakerTimeMotion} seconds` : 'N/A',
+            timestamp: timestamp
+        });
+        saveData();
+        renderRecentPoints();
+        showNotification('Motion proposed.', 'success');
+        closeModal('quickMotionPopup');
+        document.getElementById('motionTopic').value = '';
+        document.getElementById('motionDuration').value = '';
+        document.getElementById('motionSpeakerTime').value = '';
+    }
+
+    function renderRecentPoints() {
+        const recentPointsDiv = document.getElementById('recentPoints');
+        recentPointsDiv.innerHTML = '';
+        if (recentPoints.length === 0) {
+            recentPointsDiv.innerHTML = '<p class="text-gray-500 italic">No recent points or motions.</p>';
+            return;
+        }
+        recentPoints.forEach(point => {
+            let content = '';
+            if (point.type === 'Point of Order') {
+                content = `<span>${point.type}</span> at ${point.timestamp}`;
+            } else if (point.type === 'Motion') {
+                content = `<span>Motion:</span> ${point.topic} (Duration: ${point.duration}, Speaker Time: ${point.speakerTime}) at ${point.timestamp}`;
+            } else if (point.type === 'POI') {
+                content = `<span>POI:</span> ${point.question} (${point.target}) by ${point.delegate} at ${point.timestamp}`;
+            }
+            recentPointsDiv.innerHTML += `<div class="border-b border-gray-200 pb-1 mb-1">${content}</div>`;
+        });
+    }
+
+    function confirmClearRecentPoints() {
+        document.getElementById('confirmationTitle').textContent = 'Clear Recent Points & Motions';
+        document.getElementById('confirmationMessage').textContent = 'Are you sure you want to clear all recent points and motions? This action cannot be undone.';
+        showModal('confirmationDialog');
+        document.getElementById('confirmActionBtn').onclick = () => {
+            recentPoints = [];
+            saveData();
+            renderRecentPoints();
+            showNotification('Recent points and motions cleared!', 'error');
+            closeModal('confirmationDialog');
+        };
+        document.getElementById('cancelConfirmBtn').onclick = () => closeModal('confirmationDialog');
+    }
+
+    function showQuickMotionPopup() {
+        showModal('quickMotionPopup');
+    }
+
+    function addPOI() {
+        const question = document.getElementById('poiQuestion').value.trim();
+        const target = document.getElementById('poiTarget').value;
+        // Placeholder for delegate who raised POI - in a real app, this would be selected
+        const delegateRaisingPOI = primarySpeakerList.length > 0 ? primarySpeakerList[0].sCountry : 'Unknown Delegate';
+
+        if (!question) {
+            showNotification('POI question cannot be empty.', 'error');
+            return;
+        }
+
+        const timestamp = new Date().toLocaleTimeString();
+        recentPoints.unshift({ type: 'POI', question: question, target: target, delegate: delegateRaisingPOI, timestamp: timestamp });
+        saveData();
+        renderRecentPoints();
+        showNotification('Point of Information added.', 'info');
+        document.getElementById('poiQuestion').value = ''; // Clear input
+    }
+
+
+    // Notebook
+    function saveNote() {
+        localStorage.setItem('chairlinkNotes', document.getElementById('notebookText').value);
+        showNotification('Notes saved!', 'success');
+    }
+
+    function loadNotes() {
+        document.getElementById('notebookText').value = localStorage.getItem('chairlinkNotes') || '';
+    }
+
+    function insertTimestamp() {
+        const textarea = document.getElementById('notebookText');
+        const now = new Date();
+        const timestamp = `[${now.toLocaleDateString()} ${now.toLocaleTimeString()}] `;
+        const start = textarea.selectionStart;
+        textarea.value = textarea.value.substring(0, start) + timestamp + textarea.value.substring(textarea.selectionEnd, textarea.value.length);
+        textarea.selectionStart = start + timestamp.length;
+        textarea.selectionEnd = start + timestamp.length;
+        showNotification('Timestamp inserted.', 'info');
+    }
+
+    function exportNotes() {
+        const text = document.getElementById('notebookText').value;
+        const blob = new Blob([text], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'chairlink_notes.txt';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showNotification('Notes exported as .txt', 'success');
+    }
+
+
+    // Resolutions
+    let currentResolutionId = null;
+
+    function showResolutionPopup(resolution = null) {
+        document.getElementById('resolutionTitle').value = '';
+        document.getElementById('resolutionTopic').value = '';
+        document.getElementById('resolutionStatus').value = 'draft';
+        currentResolutionId = null;
+
+        if (resolution) {
+            document.getElementById('resolutionPopupTitle').textContent = 'Edit Resolution';
+            document.getElementById('resolutionTitle').value = resolution.title;
+            document.getElementById('resolutionTopic').value = resolution.topic;
+            document.getElementById('resolutionStatus').value = resolution.status;
+            currentResolutionId = resolution.id;
+        } else {
+            document.getElementById('resolutionPopupTitle').textContent = 'New Resolution';
+        }
+        showModal('resolutionPopup');
+    }
+
+    function saveResolution() {
+        const title = document.getElementById('resolutionTitle').value.trim();
+        const topic = document.getElementById('resolutionTopic').value.trim();
+        const status = document.getElementById('resolutionStatus').value;
+
+        if (!title || !topic) {
+            showNotification('Resolution title and topic cannot be empty.', 'error');
+            return;
+        }
+
+        if (currentResolutionId) {
+            // Update existing resolution
+            const index = resolutions.findIndex(res => res.id === currentResolutionId);
+            if (index !== -1) {
+                resolutions[index] = { id: currentResolutionId, title, topic, status };
+                showNotification('Resolution updated!', 'success');
+            }
+        } else {
+            // Add new resolution
+            const newId = Date.now().toString(); // Simple unique ID
+            resolutions.push({ id: newId, title, topic, status });
+            showNotification('Resolution added!', 'success');
+        }
+        saveData();
+        renderResolutions();
+        closeModal('resolutionPopup');
+    }
+
+    function renderResolutions() {
+        const resolutionListBody = document.getElementById('resolutionList');
+        resolutionListBody.innerHTML = '';
+        if (resolutions.length === 0) {
+            resolutionListBody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-500 italic">No resolutions added yet.</td></tr>';
+            return;
+        }
+        resolutions.forEach(res => {
+            const statusClass = res.status === 'passed' ? 'text-green-600' : res.status === 'failed' ? 'text-red-600' : 'text-gray-600';
+            resolutionListBody.innerHTML += `
+                <tr class="border-b last:border-b-0">
+                    <td class="py-3 px-4 font-medium">${res.title}</td>
+                    <td class="py-3 px-4 text-gray-700">${res.topic}</td>
+                    <td class="py-3 px-4"><span class="${statusClass} font-semibold">${res.status.charAt(0).toUpperCase() + res.status.slice(1)}</span></td>
+                    <td class="py-3 px-4">
+                        <div class="flex gap-2">
+                            <button class="text-blue-500 hover:text-blue-700 text-lg" onclick="showResolutionPopup(${JSON.stringify(res).replace(/"/g, '&quot;')})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="text-red-500 hover:text-red-700 text-lg" onclick="deleteResolution('${res.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    function deleteResolution(id) {
+        document.getElementById('confirmationTitle').textContent = 'Delete Resolution';
+        document.getElementById('confirmationMessage').textContent = 'Are you sure you want to delete this resolution? This action cannot be undone.';
+        showModal('confirmationDialog');
+        document.getElementById('confirmActionBtn').onclick = () => {
+            resolutions = resolutions.filter(res => res.id !== id);
+            saveData();
+            renderResolutions();
+            showNotification('Resolution deleted!', 'error');
+            closeModal('confirmationDialog');
+        };
+        document.getElementById('cancelConfirmBtn').onclick = () => closeModal('confirmationDialog');
+    }
+
+    function exportResolutions() {
+        const json = JSON.stringify(resolutions, null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'chairlink_resolutions.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showNotification('Resolutions exported as .json', 'success');
+    }
+
+
+    // Voting
+    let votingTimer;
+    let votingTimeRemaining;
+    let votingDelegates = [];
+
+    function startVotingProcedure() {
+        document.getElementById('votingProcedureModal').querySelector('.voting-procedure').innerHTML = `
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold">Start Voting Procedure</h3>
+                <button class="text-gray-500 hover:text-gray-700" onclick="closeModal('votingProcedureModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="mb-4">
+                <label for="voteSubject" class="block text-sm font-medium text-gray-700 mb-1">Subject of Vote</label>
+                <input type="text" id="voteSubject" class="compact-input w-full p-2 border rounded-md" placeholder="e.g., Motion to open debate">
+            </div>
+            <div class="mb-4">
+                <label for="voteType" class="block text-sm font-medium text-gray-700 mb-1">Vote Type</label>
+                <select id="voteType" class="compact-select w-full p-2 border rounded-md">
+                    <option value="simple">Simple Majority</option>
+                    <option value="two-thirds">Two-thirds Majority</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="votingDuration" class="block text-sm font-medium text-gray-700 mb-1">Voting Duration (seconds)</label>
+                <input type="number" id="votingDuration" class="compact-input w-full p-2 border rounded-md" value="30">
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Voting Method</label>
+                <div class="space-y-2">
+                    <label class="flex items-center">
+                        <input type="radio" name="votingMethod" value="traditional" checked class="mr-2">
+                        <span>Traditional (Manual)</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="radio" name="votingMethod" value="digital" class="mr-2">
+                        <span>Digital (QR Code/Link)</span>
+                    </label>
+                </div>
+            </div>
+            <div class="mb-4">
+                <label class="flex items-center">
+                    <input type="checkbox" id="showLiveResults" class="mr-2">
+                    <span class="text-sm font-medium text-gray-700">Show live results to delegates</span>
+                </label>
+            </div>
+            <div class="flex justify-end gap-2">
+                <button class="modal-button modal-button-primary" onclick="initiateVoting()">Start Vote</button>
+            </div>
+        `;
+        showModal('votingProcedureModal');
+    }
+
+    function initiateVoting() {
+        activeVoteSubject = document.getElementById('voteSubject').value.trim();
+        activeVoteType = document.getElementById('voteType').value;
+        votingTimeRemaining = parseInt(document.getElementById('votingDuration').value);
+        const votingMethod = document.querySelector('input[name="votingMethod"]:checked').value;
+        const showLiveResults = document.getElementById('showLiveResults').checked;
+
+        if (!activeVoteSubject) {
+            showNotification('Please enter a subject for the vote.', 'error');
+            return;
+        }
+        if (isNaN(votingTimeRemaining) || votingTimeRemaining <= 0) {
+            showNotification('Please enter a valid voting duration.', 'error');
+            return;
+        }
+
+        yesVotes = 0;
+        noVotes = 0;
+        abstainVotes = 0;
+        presentVotes = 0;
+        totalVotes = delegates.filter(d => d.status === 'present' || d.status === 'present-voting').length;
+        votingDelegates = delegates.filter(d => d.status === 'present' || d.status === 'present-voting').map(d => ({
+            country: d.country,
+            status: d.status,
+            vote: 'undecided'
+        }));
+
+        // Generate unique session ID for this vote
+        const sessionId = Date.now().toString();
+        activeVoteSessionId = sessionId;
+
+        if (votingMethod === 'digital') {
+            // Create digital voting session
+            const voteData = {
+                id: sessionId,
+                subject: activeVoteSubject,
+                type: activeVoteType,
+                duration: votingTimeRemaining,
+                showResults: showLiveResults,
+                timestamp: new Date().toISOString()
+            };
+
+            // Store vote data for delegate access
+            localStorage.setItem(`chairlink_vote_${sessionId}`, JSON.stringify(voteData));
+
+            // Show QR code and links modal
+            showDigitalVotingModal(sessionId);
+        } else {
+            // Traditional voting
+            document.getElementById('activeVoteSubject').textContent = activeVoteSubject;
+            document.getElementById('activeVotingDisplay').classList.remove('hidden');
+            closeModal('votingProcedureModal');
+            showNotification('Traditional voting started!', 'info');
+
+            updateVotingDisplay();
+            votingTimer = setInterval(() => {
+                votingTimeRemaining--;
+                updateVotingDisplay();
+                if (votingTimeRemaining <= 0) {
+                    endVoting();
+                }
+            }, 1000);
+        }
+    }
+
+    function updateVotingDisplay() {
+        document.getElementById('yesVotes').textContent = yesVotes;
+        document.getElementById('noVotes').textContent = noVotes;
+        document.getElementById('abstainVotes').textContent = abstainVotes;
+        document.getElementById('presentVotes').textContent = presentVotes;
+
+        const progress = (totalVotes === 0) ? 100 : ((yesVotes + noVotes + abstainVotes + presentVotes) / totalVotes) * 100;
+        document.getElementById('votingProgress').style.width = `${progress}%`;
+
+        document.getElementById('votingTimeLeft').textContent = `${votingTimeRemaining}s`;
+    }
+
+    function recordVote(country, vote) {
+        const delegateIndex = votingDelegates.findIndex(d => d.country === country);
+        if (delegateIndex !== -1 && votingDelegates[delegateIndex].vote === 'undecided') {
+            votingDelegates[delegateIndex].vote = vote;
+            if (vote === 'yes') yesVotes++;
+            else if (vote === 'no') noVotes++;
+            else if (vote === 'abstain') abstainVotes++;
+            else if (vote === 'present') presentVotes++; // for present but not voting
+
+            updateVotingDisplay();
+            showNotification(`${country} voted ${vote}.`, 'info');
+        } else if (delegateIndex === -1) {
+            showNotification(`${country} is not eligible to vote.`, 'error');
+        } else {
+            showNotification(`${country} has already voted.`, 'warning');
+        }
+    }
+
+    function endVoting() {
+        clearInterval(votingTimer);
+        document.getElementById('activeVotingDisplay').classList.add('hidden');
+
+        // Calculate result
+        let result = 'Failed';
+        let majorityNeeded = 0;
+
+        const totalValidVotes = yesVotes + noVotes + abstainVotes; // Votes that count towards majority
+        const totalPresentVoting = delegates.filter(d => d.status === 'present-voting').length;
+
+        if (activeVoteType === 'simple') {
+            majorityNeeded = Math.floor(totalValidVotes / 2) + 1;
+        } else if (activeVoteType === 'two-thirds') {
+            majorityNeeded = Math.ceil((yesVotes + noVotes) * (2/3)); // Two-thirds of votes cast (yes/no)
+        }
+
+        // Simplified majority logic for "present and voting"
+        if (yesVotes >= majorityNeeded) {
+            result = 'Passed';
+        } else if (yesVotes > noVotes && activeVoteType === 'simple' && yesVotes > majorityNeeded) {
+             result = 'Passed (Simple Majority)';
+        } else if (yesVotes > (noVotes * 2) && activeVoteType === 'two-thirds' && yesVotes > majorityNeeded) {
+             result = 'Passed (Two-thirds Majority)';
+        } else {
+             result = 'Failed';
+        }
+
+        votingHistory.unshift({
+            subject: activeVoteSubject,
+            type: activeVoteType,
+            result: result,
+            yes: yesVotes,
+            no: noVotes,
+            abstain: abstainVotes,
+            present: presentVotes,
+            timestamp: new Date().toLocaleString()
+        });
+        saveData();
+        renderVotingHistory();
+        showNotification(`Voting ended! Result: ${result}`, result === 'Passed' ? 'success' : 'error');
+        totalVotes++; // Increment overall vote count
+        updateDashboardStats();
+    }
+
+    function closeVotingDisplay() {
+        clearInterval(votingTimer);
+        document.getElementById('activeVotingDisplay').classList.add('hidden');
+        showNotification('Voting display closed.', 'info');
+    }
+
+    function renderVotingHistory() {
+        const historyBody = document.getElementById('votingHistory');
+        historyBody.innerHTML = '';
+        if (votingHistory.length === 0) {
+            historyBody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-500 italic">No voting history.</td></tr>';
+            return;
+        }
+        votingHistory.forEach(vote => {
+            const resultClass = vote.result.includes('Passed') ? 'text-green-600' : 'text-red-600';
+            historyBody.innerHTML += `
+                <tr class="border-b last:border-b-0">
+                    <td class="py-3 px-4 font-medium">${vote.subject}</td>
+                    <td class="py-3 px-4 text-gray-700">${vote.type}</td>
+                    <td class="py-3 px-4"><span class="${resultClass} font-semibold">${vote.result}</span></td>
+                    <td class="py-3 px-4 text-sm">
+                        Yes: ${vote.yes}, No: ${vote.no}, Abstain: ${vote.abstain}<br>
+                        Present: ${vote.present}
+                        <span class="block text-xs text-gray-500">${vote.timestamp}</span>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    function startRollCallVote() {
+        // This would typically iterate through delegates for individual voting
+        showNotification('Roll Call Voting initiated. Manually record votes for each delegate.', 'info');
+        // Example: You would present a list of delegates with Yes/No/Abstain buttons
+        // For demonstration, we'll just show the active voting display with a note
+        startVotingProcedure(); // Reuse the voting procedure setup, but with a note
+        document.getElementById('voteSubject').value = 'Roll Call Vote';
+        document.getElementById('voteType').value = 'simple';
+        document.getElementById('votingDuration').value = '60';
+        document.getElementById('votingProcedureModal').querySelector('.voting-procedure').innerHTML += `
+            <p class="text-sm text-gray-600 mt-4">For a true roll call, you'd call out each country and use the 'recordVote' function manually or integrate an interactive delegate vote input.</p>
+        `;
+    }
+
+    function startShowOfHands() {
+        showNotification('Show of Hands Voting initiated. Count votes manually.', 'info');
+        // This is primarily for manual counting by the chair
+        startVotingProcedure(); // Reuse the voting procedure setup, but with a note
+        document.getElementById('voteSubject').value = 'Show of Hands Vote';
+        document.getElementById('voteType').value = 'simple';
+        document.getElementById('votingDuration').value = '15';
+        document.getElementById('votingProcedureModal').querySelector('.voting-procedure').innerHTML += `
+            <p class="text-sm text-gray-600 mt-4">Count 'Yes', 'No', and 'Abstain' votes visually and enter them below or use manual 'recordVote' for summary.</p>
+            <div class="mt-4 flex gap-2">
+                <input type="number" id="manualYes" placeholder="Yes" class="compact-input w-20">
+                <input type="number" id="manualNo" placeholder="No" class="compact-input w-20">
+                <input type="number" id="manualAbstain" placeholder="Abstain" class="compact-input w-20">
+                <button class="action-button bg-blue-500 text-white" onclick="manualRecordShowOfHands()">Record Counts</button>
+            </div>
+        `;
+    }
+
+    function manualRecordShowOfHands() {
+        yesVotes = parseInt(document.getElementById('manualYes').value) || 0;
+        noVotes = parseInt(document.getElementById('manualNo').value) || 0;
+        abstainVotes = parseInt(document.getElementById('manualAbstain').value) || 0;
+        presentVotes = delegates.filter(d => d.status === 'present' || d.status === 'present-voting').length - (yesVotes + noVotes + abstainVotes);
+        updateVotingDisplay();
+        showNotification('Manual vote counts updated.', 'success');
+    }
+
+   
+
+    function performLogin() {
+        // Prefer overlay inputs; fall back if needed
+        const usernameEl = document.getElementById('loginUsername') || document.getElementById('usernameInput');
+        const passwordEl = document.getElementById('loginPassword') || document.getElementById('passwordInput');
+        const username = usernameEl ? usernameEl.value.trim() : '';
+        const password = passwordEl ? passwordEl.value : '';
+        const loginErrorEl = document.getElementById('loginError');
+
+        const ok = (username === 'chair' && password === 'pass') ||
+                   (allowedUsers[username] && allowedUsers[username] === password);
+
+        if (ok) {
+            loginStatus = true;
+            if (loginErrorEl) { loginErrorEl.classList.add('hidden'); loginErrorEl.textContent = ''; }
+            showNotification('Login successful!', 'success');
+            const overlay = document.getElementById('loginOverlay');
+            if (overlay) overlay.style.display = 'none';
+            saveData();
+        } else {
+            if (loginErrorEl) {
+                loginErrorEl.textContent = 'Invalid username or password.';
+                loginErrorEl.classList.remove('hidden');
+            } else {
+                showNotification('Invalid username or password.', 'error');
+            }
+        }
+    }
+
+    function performLogout() {
+        loginStatus = false;
+        document.getElementById('loginStatus').textContent = 'Login';
+        showNotification('Logged out.', 'info');
+        saveData();
+    }
+
+    document.getElementById('loginBtn').addEventListener('click', () => {
+        if (loginStatus) {
+            performLogout();
+        } else {
+            showModal('loginModal');
+        }
+    });
+
+
+    // Settings
+    document.addEventListener('DOMContentLoaded', function() {
+        const settingsBtnEl = document.getElementById('settingsBtn');
+        if (settingsBtnEl) {
+            settingsBtnEl.addEventListener('click', openSettings);
+        }
+    });
+
+    function openSettings() {
+        document.getElementById('committeeNameInput').value = document.getElementById('committeeName').textContent;
+        document.getElementById('sessionTimeInput').value = Math.floor(sessionTime / 60); // minutes
+        document.getElementById('speakerTimeInput').value = speakerTime;
+        document.getElementById('crisisModeToggle').checked = crisisMode;
+        renderRankingCriteriaInputs(); // Ensure criteria inputs are rendered on opening settings
+        showModal('settingsModal');
+    }
+
+    document.getElementById('settingsModal').querySelector('.modal-actions button.modal-button-secondary').addEventListener('click', updateSettings);
+
+    function updateSettings() {
+        const newCommitteeName = document.getElementById('committeeNameInput').value;
+        const newSessionTimeMinutes = parseInt(document.getElementById('sessionTimeInput').value);
+        const newSpeakerTime = parseInt(document.getElementById('speakerTimeInput').value);
+        const newCrisisMode = document.getElementById('crisisModeToggle').checked;
+
+        if (newCommitteeName) {
+            document.getElementById('committeeName').textContent = newCommitteeName;
+        }
+
+        if (!isNaN(newSessionTimeMinutes) && newSessionTimeMinutes >= 0) {
+            sessionTime = newSessionTimeMinutes * 60;
+            updateSessionTimerDisplay();
+        }
+
+        if (!isNaN(newSpeakerTime) && newSpeakerTime >= 0) {
+            speakerTime = newSpeakerTime;
+            document.getElementById('modSpeakerTime').value = speakerTime; // Update moderated caucus default
+        }
+
+        if (newCrisisMode !== crisisMode) {
+            crisisMode = newCrisisMode;
+            if (crisisMode) {
+                document.getElementById('crisisModeBtn').classList.add('crisis-flash');
+                showNotification('Crisis Mode Activated!', 'error');
+            } else {
+                document.getElementById('crisisModeBtn').classList.remove('crisis-flash');
+                showNotification('Crisis Mode Deactivated.', 'success');
+            }
+        }
+        saveData();
+        showNotification('Settings saved!', 'success');
+        closeModal('settingsModal');
+    }
+
+    document.getElementById('importFileInput').addEventListener('change', importData);
+
+    function importData(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    if (importedData.delegates) delegates = importedData.delegates;
+                    if (importedData.resolutions) resolutions = importedData.resolutions;
+                    if (importedData.primarySpeakerList) primarySpeakerList = importedData.primarySpeakerList;
+                    if (importedData.recentPoints) recentPoints = importedData.recentPoints;
+                    if (importedData.sessionTime) sessionTime = importedData.sessionTime;
+                    if (importedData.speakerTime) speakerTime = importedData.speakerTime;
+                    if (importedData.votingHistory) votingHistory = importedData.votingHistory;
+                    if (importedData.loginStatus) loginStatus = importedData.loginStatus;
+                    if (importedData.crisisMode) crisisMode = importedData.crisisMode;
+                    if (importedData.delegateRatings) delegateRatings = importedData.delegateRatings;
+                    if (importedData.rankingCriteria) rankingCriteria = importedData.rankingCriteria;
+
+                    saveData(); // Save imported data to localStorage
+                    loadData(); // Re-render all elements
+                    showNotification('Data imported successfully!', 'success');
+                } catch (error) {
+                    showNotification('Error importing data. Invalid JSON file.', 'error');
+                    console.error('Import error:', error);
+                }
+            };
+            reader.readAsText(file);
+        }
+    }
+
+    document.getElementById('committeeLogo').addEventListener('click', () => document.getElementById('uploadLogoInput').click());
+    document.getElementById('uploadLogoBtn').addEventListener('click', () => document.getElementById('uploadLogoInput').click());
+
+    // Add a hidden file input for logo upload
+    const logoInput = document.createElement('input');
+    logoInput.type = 'file';
+    logoInput.accept = 'image/*';
+    logoInput.id = 'uploadLogoInput';
+    logoInput.style.display = 'none';
+    document.body.appendChild(logoInput);
+
+    logoInput.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('committeeLogo').src = e.target.result;
+                localStorage.setItem('chairlinkLogo', e.target.result);
+                showNotification('Logo updated!', 'success');
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Load logo on startup
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedLogo = localStorage.getItem('chairlinkLogo');
+        if (savedLogo) {
+            document.getElementById('committeeLogo').src = savedLogo;
+        }
+        // Also ensure committee name is loaded on startup
+        document.getElementById('committeeName').textContent = localStorage.getItem('chairlinkCommitteeName') || 'General Assembly';
+    });
+
+
+    // Crisis Mode
+    document.getElementById('crisisModeBtn').addEventListener('click', () => {
+        crisisMode = !crisisMode;
+        if (crisisMode) {
+            document.getElementById('crisisModeBtn').classList.add('crisis-flash');
+            showNotification('Crisis Mode Activated!', 'error');
+        } else {
+            document.getElementById('crisisModeBtn').classList.remove('crisis-flash');
+            showNotification('Crisis Mode Deactivated.', 'success');
+        }
+        document.getElementById('crisisModeToggle').checked = crisisMode;
+        saveData();
+    });
+
+
+    // Delegate Ranking System
+    function renderDelegateRanking() {
+        const delegateRankingList = document.getElementById('delegateRankingList');
+        delegateRankingList.innerHTML = '';
+
+        let filteredDelegates = [...delegates];
+        const searchTerm = document.getElementById('delegateSearch').value.toLowerCase();
+        if (searchTerm) {
+            filteredDelegates = filteredDelegates.filter(d =>
+                d.country.toLowerCase().includes(searchTerm) ||
+                d.name.toLowerCase().includes(searchTerm)
+            );
+        }
+
+        const sortBy = document.getElementById('sortDelegates').value;
+        if (sortBy === 'name') {
+            filteredDelegates.sort((a, b) => a.country.localeCompare(b.country));
+        } else if (sortBy === 'rating') {
+            // Sort by average rating, descending
+            filteredDelegates.sort((a, b) => {
+                const avgRatingA = calculateAverageRating(a.country);
+                const avgRatingB = calculateAverageRating(b.country);
+                return avgRatingB - avgRatingA; // Descending
+            });
+        }
+
+        if (filteredDelegates.length === 0) {
+            delegateRankingList.innerHTML = '<p class="text-center text-gray-500 italic mt-8">No delegates match your search or no delegates added.</p>';
+            return;
+        }
+
+        filteredDelegates.forEach(delegate => {
+            const currentRatings = delegateRatings[delegate.country] || {};
+            const totalScore = rankingCriteria.reduce((sum, cr) => sum + (currentRatings[cr] || 0), 0);
+            const totalId = `total-${delegate.country.replace(/\\s/g, '_')}`;
+            let criteriaHtml = '';
+            rankingCriteria.forEach((criterion, index) => {
+                const rating = currentRatings[criterion] || 0;
+                criteriaHtml += `
+                    <div class="mb-1">
+                        <label class="block text-xs font-medium text-gray-600">${criterion}</label>
+                        <div class="star-rating" data-country="${delegate.country}" data-criterion="${criterion}">
+                            ${[1, 2, 3, 4, 5].map(star => `
+                                <i class="fas fa-star text-lg ${star <= rating ? 'active' : ''}" data-value="${star}"></i>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+            // Add POI counter after criteriaHtml (after Diplomacy)
+            criteriaHtml += `
+                <div class="mb-1 flex items-center gap-2 mt-2">
+                    <label class="block text-xs font-medium text-gray-600 mr-2">POI's</label>
+                    <button class="action-button bg-blue-200 text-blue-800 text-xs px-2 py-1" data-poi-minus="${delegate.country}">-</button>
+                    <span class="font-semibold text-base" id="poi-count-${delegate.country.replace(/\s/g, '_')}">${delegate.poiCount || 0}</span>
+                    <button class="action-button bg-blue-200 text-blue-800 text-xs px-2 py-1" data-poi-plus="${delegate.country}">+</button>
+                </div>
+            `;
+            delegateRankingList.innerHTML += `
+                <div class="delegate-card border rounded-lg p-4 shadow-sm bg-white" data-country="${delegate.country}">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center">
+                            <img src="${delegate.flag}" alt="${delegate.country} flag" class="flag-icon mr-3 w-8 h-8">
+                            <div>
+                                <p class="font-bold text-lg">${delegate.country}</p>
+                                <p class="text-sm text-gray-600">${delegate.name}</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs text-gray-500 mr-1">Total:</span>
+                            <span class="font-bold text-base" id="${totalId}">${totalScore}</span>
+                        </div>
+                    </div>
+                    ${criteriaHtml}
+                </div>
+            `;
+        });
+
+        // Add event listeners for star ratings
+        document.querySelectorAll('.star-rating').forEach(starRatingContainer => {
+            starRatingContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('fa-star')) {
+                    const country = starRatingContainer.dataset.country;
+                    const criterion = starRatingContainer.dataset.criterion;
+                    const value = parseInt(e.target.dataset.value);
+                    setDelegateRating(country, criterion, value);
+                    // Update the total score display for this delegate without full re-render
+                    const ratings = delegateRatings[country] || {};
+                    const newTotal = rankingCriteria.reduce((sum, cr) => sum + (ratings[cr] || 0), 0);
+                    const totalEl = document.getElementById(`total-${country.replace(/\s/g, '_')}`);
+                    if (totalEl) totalEl.textContent = newTotal;
+                    // Update star visuals in this container
+                    starRatingContainer.querySelectorAll('.fa-star').forEach(star => {
+                        const starValue = parseInt(star.getAttribute('data-value'));
+                        if (starValue <= value) {
+                            star.classList.add('active');
+                        } else {
+                            star.classList.remove('active');
+                        }
+                    });
+                    // If sorting by rating, smoothly reorder
+                    if (document.getElementById('sortDelegates').value === 'rating') {
+                        smoothResortByRating();
+                    }
+                }
+            });
+        });
+        // Add event listeners for POI +/- buttons
+        document.querySelectorAll('[data-poi-plus]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const country = this.getAttribute('data-poi-plus');
+                const delegate = delegates.find(d => d.country === country);
+                if (delegate) {
+                    delegate.poiCount = (delegate.poiCount || 0) + 1;
+                    saveData();
+                    renderDelegateRanking();
+                }
+            });
+        });
+        document.querySelectorAll('[data-poi-minus]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const country = this.getAttribute('data-poi-minus');
+                const delegate = delegates.find(d => d.country === country);
+                if (delegate && delegate.poiCount > 0) {
+                    delegate.poiCount = delegate.poiCount - 1;
+                    saveData();
+                    renderDelegateRanking();
+                }
+            });
+        });
+    }
+
+    function setDelegateRating(country, criterion, rating) {
+        if (!delegateRatings[country]) {
+            delegateRatings[country] = {};
+        }
+        delegateRatings[country][criterion] = rating;
+        saveData();
+        // If not sorting by rating, re-render to refresh UI; otherwise, we'll animate reorder
+        if (document.getElementById('sortDelegates').value !== 'rating') {
+            renderDelegateRanking();
+        }
+    }
+
+    function calculateAverageRating(country) {
+        const ratings = delegateRatings[country];
+        if (!ratings || Object.keys(ratings).length === 0) {
+            return 0;
+        }
+        let total = 0;
+        let count = 0;
+        rankingCriteria.forEach(criterion => {
+            if (ratings[criterion]) {
+                total += ratings[criterion];
+                count++;
+            }
+        });
+        return count > 0 ? total / count : 0;
+    }
+
+    // Event listeners for search and sort
+    document.getElementById('delegateSearch').addEventListener('keyup', renderDelegateRanking);
+    document.getElementById('sortDelegates').addEventListener('change', function() {
+        if (this.value === 'rating') {
+            // Ensure list is rendered, then animate to the new order
+            renderDelegateRanking();
+            requestAnimationFrame(() => smoothResortByRating());
+        } else {
+            renderDelegateRanking();
+        }
+    });
+
+    // Ranking Criteria Management
+    function renderRankingCriteriaInputs() {
+        const container = document.getElementById('rankingCriteriaInputs');
+        container.innerHTML = '';
+        rankingCriteria.forEach((criterion, index) => {
+            container.innerHTML += `
+                <div class="flex items-center gap-2">
+                    <input type="text" class="compact-input flex-1 p-2 border rounded-md" value="${criterion}" id="criterionInput-${index}" placeholder="Criterion Name">
+                    <button class="action-button bg-red-500 text-white text-sm px-2 py-1" onclick="removeRankingCriterion(${index})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+        });
+        container.innerHTML += `
+            <button class="action-button bg-green-500 text-white text-sm" onclick="addRankingCriterion()">
+                <i class="fas fa-plus mr-1"></i>Add Criterion
+            </button>
+        `;
+    }
+
+   function addRankingCriterion() {
+    rankingCriteria.push(''); // Add an empty criterion
+    renderRankingCriteriaInputs();
+}
+
+    function removeRankingCriterion(index) {
+        if (rankingCriteria.length > 1) { // Ensure at least one criterion remains
+            rankingCriteria.splice(index, 1);
+            renderRankingCriteriaInputs();
+        } else {
+            showNotification('At least one ranking criterion is required.', 'warning');
+        }
+    }
+
+    function saveRankingCriteria() {
+        const newCriteria = [];
+        let isValid = true;
+        document.querySelectorAll('#rankingCriteriaInputs input[type="text"]').forEach((input, index) => {
+            if (input.value.trim() === '') {
+                showNotification('Criterion names cannot be empty.', 'error');
+                isValid = false;
+            }
+            newCriteria.push(input.value.trim());
+        });
+
+        if (isValid) {
+            rankingCriteria = newCriteria;
+            saveData();
+            renderDelegateRanking(); // Re-render delegate ranking with new criteria
+            showNotification('Ranking criteria saved!', 'success');
+        }
+    }
+
+    document.getElementById('exportDataBtn').addEventListener('click', function() {
+      const data = {
+        delegates,
+        resolutions,
+        primarySpeakerList,
+        recentPoints,
+        sessionTime,
+        speakerTime,
+        votingHistory,
+        loginStatus,
+        crisisMode,
+        delegateRatings,
+        rankingCriteria
+      };
+      const json = JSON.stringify(data, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'chairlink_data.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showNotification('Data exported as .json', 'success');
+    });
+
+    document.getElementById('importFileInput').addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          try {
+            const importedData = JSON.parse(e.target.result);
+            if (importedData.delegates) delegates = importedData.delegates;
+            if (importedData.resolutions) resolutions = importedData.resolutions;
+            if (importedData.primarySpeakerList) primarySpeakerList = importedData.primarySpeakerList;
+            if (importedData.recentPoints) recentPoints = importedData.recentPoints;
+            if (importedData.sessionTime) sessionTime = importedData.sessionTime;
+            if (importedData.speakerTime) speakerTime = importedData.speakerTime;
+            if (importedData.votingHistory) votingHistory = importedData.votingHistory;
+            if (importedData.loginStatus) loginStatus = importedData.loginStatus;
+            if (importedData.crisisMode) crisisMode = importedData.crisisMode;
+            if (importedData.delegateRatings) delegateRatings = importedData.delegateRatings;
+            if (importedData.rankingCriteria) rankingCriteria = importedData.rankingCriteria;
+            saveData();
+            loadData();
+            showNotification('Data imported successfully!', 'success');
+          } catch (error) {
+            showNotification('Error importing data. Invalid JSON file.', 'error');
+            console.error('Import error:', error);
+          }
+        };
+        reader.readAsText(file);
+      }
+    });
+
+    // Digital Voting Functions
+    function showDigitalVotingModal(sessionId) {
+        closeModal('votingProcedureModal');
+
+        // Generate QR code
+        generateQRCode(sessionId);
+
+        // Generate voting links
+        generateVotingLinks(sessionId);
+
+        // Start polling for results
+        startDigitalVotingPolling(sessionId);
+
+        showModal('digitalVotingModal');
+        showNotification('Digital voting session created! Share the QR code or links with delegates.', 'success');
+    }
+
+    function generateQRCode(sessionId) {
+        // Handle both local file and web server scenarios
+        let baseUrl;
+        if (window.location.protocol === 'file:') {
+            // For local files, use relative path
+            baseUrl = 'delegate-voting.html';
+        } else {
+            // For web servers, use full URL
+            baseUrl = window.location.origin + window.location.pathname.replace('chairlink add settings nd crisismun nd novamun n empower.html', 'delegate-voting.html');
+        }
+
+        const masterUrl = `${baseUrl}?session=${sessionId}&delegate=all`;
+
+        const qrContainer = document.getElementById('qrCodeContainer');
+        qrContainer.innerHTML = '';
+
+        // Generate QR code using the QR library
+        QRCode.toCanvas(qrContainer, masterUrl, {
+            width: 200,
+            margin: 2,
+            color: {
+                dark: '#000000',
+                light: '#FFFFFF'
+            }
+        }, function (error, canvas) {
+            if (error) {
+                console.error('QR Code generation error:', error);
+                // Fallback to simple canvas
+                const fallbackCanvas = document.createElement('canvas');
+                fallbackCanvas.width = 200;
+                fallbackCanvas.height = 200;
+                const ctx = fallbackCanvas.getContext('2d');
+                ctx.fillStyle = '#000';
+                ctx.fillRect(0, 0, 200, 200);
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(10, 10, 180, 180);
+                ctx.fillStyle = '#000';
+                ctx.fillRect(20, 20, 160, 160);
+                ctx.fillStyle = '#000';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Scan to Vote', 100, 190);
+                qrContainer.appendChild(fallbackCanvas);
+                window.qrCanvas = fallbackCanvas;
+            } else {
+                window.qrCanvas = canvas;
+            }
+        });
+    }
+
+    function generateVotingLinks(sessionId) {
+        // Handle both local file and web server scenarios
+        let baseUrl;
+        if (window.location.protocol === 'file:') {
+            // For local files, use relative path
+            baseUrl = 'delegate-voting.html';
+        } else {
+            // For web servers, use full URL
+            baseUrl = window.location.origin + window.location.pathname.replace('chairlink add settings nd crisismun nd novamun n empower.html', 'delegate-voting.html');
+        }
+
+        // Master link
+        const masterUrl = `${baseUrl}?session=${sessionId}&delegate=all`;
+        document.getElementById('masterVotingLink').value = masterUrl;
+
+        // Individual links
+        const individualContainer = document.getElementById('individualLinksContainer');
+        individualContainer.innerHTML = '';
+
+        delegates.forEach(delegate => {
+            const individualUrl = `${baseUrl}?session=${sessionId}&delegate=${encodeURIComponent(delegate.country)}`;
+            const linkDiv = document.createElement('div');
+            linkDiv.className = 'flex items-center gap-2 p-2 bg-gray-50 rounded';
+            linkDiv.innerHTML = `
+                <span class="text-sm font-medium text-gray-700 flex-shrink-0">${delegate.country}:</span>
+                <input type="text" value="${individualUrl}" class="flex-1 p-1 text-xs border rounded" readonly>
+                <button class="action-button bg-blue-500 text-white px-2 py-1 text-xs" onclick="copyToClipboard(this.previousElementSibling)">
+                    <i class="fas fa-copy"></i>
+                </button>
+            `;
+            individualContainer.appendChild(linkDiv);
+        });
+
+        // Update total votes count
+        document.getElementById('digitalTotalVotes').textContent = delegates.filter(d => d.status === 'present' || d.status === 'present-voting').length;
+    }
+
+    function copyToClipboard(element) {
+        if (typeof element === 'string') {
+            element = document.getElementById(element);
+        }
+        element.select();
+        element.setSelectionRange(0, 99999);
+        document.execCommand('copy');
+        showNotification('Link copied to clipboard!', 'success');
+    }
+
+    function downloadQRCode() {
+        if (window.qrCanvas) {
+            const link = document.createElement('a');
+            link.download = 'chairlink-voting-qr.png';
+            link.href = window.qrCanvas.toDataURL();
+            link.click();
+        }
+    }
+
+    function startDigitalVotingPolling(sessionId) {
+        if (digitalVotingInterval) {
+            clearInterval(digitalVotingInterval);
+        }
+
+        digitalVotingInterval = setInterval(() => {
+            updateDigitalVotingResults(sessionId);
+        }, 2000);
+    }
+
+    function updateDigitalVotingResults(sessionId) {
+        try {
+            const votes = JSON.parse(localStorage.getItem(`chairlink_votes_${sessionId}`) || '[]');
+            const yesCount = votes.filter(v => v.vote === 'yes').length;
+            const abstainCount = votes.filter(v => v.vote === 'abstain').length;
+            const noCount = votes.filter(v => v.vote === 'no').length;
+            const totalVoted = votes.length;
+            const totalEligible = delegates.filter(d => d.status === 'present' || d.status === 'present-voting').length;
+
+            document.getElementById('digitalYesVotes').textContent = yesCount;
+            document.getElementById('digitalAbstainVotes').textContent = abstainCount;
+            document.getElementById('digitalNoVotes').textContent = noCount;
+            document.getElementById('digitalVoteProgress').textContent = totalVoted;
+            document.getElementById('digitalTotalVotes').textContent = totalEligible;
+
+            // Update the main voting display if it's open
+            if (!document.getElementById('activeVotingDisplay').classList.contains('hidden')) {
+                yesVotes = yesCount;
+                noVotes = noCount;
+                abstainVotes = abstainCount;
+                updateVotingDisplay();
+            }
+        } catch (error) {
+            console.error('Error updating digital voting results:', error);
+        }
+    }
+
+    function refreshDigitalResults() {
+        if (activeVoteSessionId) {
+            updateDigitalVotingResults(activeVoteSessionId);
+            showNotification('Results refreshed!', 'success');
+        }
+    }
+
+    function endDigitalVoting() {
+        if (digitalVotingInterval) {
+            clearInterval(digitalVotingInterval);
+            digitalVotingInterval = null;
+        }
+
+        closeModal('digitalVotingModal');
+
+        // Calculate final results
+        const votes = JSON.parse(localStorage.getItem(`chairlink_votes_${activeVoteSessionId}`) || '[]');
+        yesVotes = votes.filter(v => v.vote === 'yes').length;
+        noVotes = votes.filter(v => v.vote === 'no').length;
+        abstainVotes = votes.filter(v => v.vote === 'abstain').length;
+        presentVotes = 0; // Digital voting doesn't have "present but not voting"
+
+        // Calculate result
+        let result = 'Failed';
+        const totalValidVotes = yesVotes + noVotes + abstainVotes;
+
+        if (activeVoteType === 'simple') {
+            const majorityNeeded = Math.floor(totalValidVotes / 2) + 1;
+            if (yesVotes >= majorityNeeded) {
+                result = 'Passed';
+            }
+        } else if (activeVoteType === 'two-thirds') {
+            const majorityNeeded = Math.ceil((yesVotes + noVotes) * (2/3));
+            if (yesVotes >= majorityNeeded) {
+                result = 'Passed (Two-thirds Majority)';
+            }
+        }
+
+        // Add to voting history
+        votingHistory.unshift({
+            subject: activeVoteSubject,
+            type: activeVoteType,
+            result: result,
+            yes: yesVotes,
+            no: noVotes,
+            abstain: abstainVotes,
+            present: presentVotes,
+            timestamp: new Date().toLocaleString(),
+            method: 'Digital'
+        });
+
+        saveData();
+        renderVotingHistory();
+        showNotification(`Digital voting ended! Result: ${result}`, result.includes('Passed') ? 'success' : 'error');
+
+        // Clean up
+        localStorage.removeItem(`chairlink_vote_${activeVoteSessionId}`);
+        activeVoteSessionId = null;
+    }
+
+    // Always start with login screen, even if localStorage is set
+    window.addEventListener('DOMContentLoaded', function() {
+      localStorage.removeItem('chairlinkUser');
+      document.getElementById('loginOverlay').style.display = 'flex';
+      document.body.classList.add('overflow-hidden');
+      document.getElementById('mainApp').style.display = 'none';
+      document.getElementById('iconBar').style.display = 'none';
+      document.getElementById('loadingOverlay').style.display = 'none';
+    });
+
+    // Show icon bar after loading
+    setTimeout(() => {
+      document.getElementById('iconBar').style.display = '';
+    }, 3140);
+
+    // Theme icon spin and menu logic
+    let themeMenuOpen = false;
+    document.getElementById('themeIconBtn').addEventListener('click', function() {
+      this.classList.add('animate-spin-fast');
+      setTimeout(() => this.classList.remove('animate-spin-fast'), 600);
+      // Show/hide theme menu (implement your menu logic here)
+      // ...
+    });
+
+    // Logout icon logic
+    document.getElementById('logoutIconBtn').addEventListener('click', function() {
+      logout();
+    });
+
+    // Confetti on logo click
+    function sprayConfetti() {
+      // Use a confetti library or custom canvas confetti here
+      // Example: confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+    }
+    document.getElementById('committeeLogo').addEventListener('click', sprayConfetti);
+    document.querySelector('#loadingOverlay img').addEventListener('click', sprayConfetti);
+
+    // Loading blue line animation with ease-in-out
+    // (Replace SVG animateTransform with JS/CSS animation for custom timing)
+    // ... existing code ...
+</script>
+<script>
+const allowedUsers = [
+  { username: "Khaled", password: "Khaled@chairlinkfounder" },
+  { username: "Omar", password: "Omar@chairlinkfounder" },
+  { username: "SentiaChair", password: "SentiaxChairlink" },
+  { username: "FutureChair", password: "FuturexChairlink" },
+  { username: "UnityChair", password: "UnityxChairlink" },
+  { username: "ChairLink", password: "ChairLink123@" },
+
+  { username: "ChairlinkGuest1", password: "GuestChair1" },
+  { username: "ChairlinkGuest2", password: "GuestChair2" },
+  { username: "ChairlinkGuest3", password: "GuestChair3" },
+  { username: "ChairlinkGuest4", password: "GuestChair4" },
+  { username: "ChairlinkGuest5", password: "GuestChair5" },
+  { username: "ChairlinkGuest6", password: "GuestChair6" },
+  { username: "ChairlinkGuest7", password: "GuestChair7" },
+  { username: "ChairlinkGuest8", password: "GuestChair8" },
+  { username: "ChairlinkGuest9", password: "GuestChair9" },
+  { username: "ChairlinkGuest10", password: "GuestChair10" },
+  { username: "ChairlinkGuest11", password: "GuestChair11" },
+  { username: "ChairlinkGuest12", password: "GuestChair12" },
+  { username: "ChairlinkGuest13", password: "GuestChair13" },
+  { username: "ChairlinkGuest14", password: "GuestChair14" },
+  { username: "ChairlinkGuest15", password: "GuestChair15" },
+  { username: "ChairlinkGuest16", password: "GuestChair16" },
+  { username: "ChairlinkGuest17", password: "GuestChair17" },
+  { username: "ChairlinkGuest18", password: "GuestChair18" },
+  { username: "ChairlinkGuest19", password: "GuestChair19" },
+  { username: "ChairlinkGuest20", password: "GuestChair20" },
+  { username: "ChairlinkGuest21", password: "GuestChair21" },
+  { username: "ChairlinkGuest22", password: "GuestChair22" },
+  { username: "ChairlinkGuest23", password: "GuestChair23" },
+  { username: "ChairlinkGuest24", password: "GuestChair24" },
+  { username: "ChairlinkGuest25", password: "GuestChair25" },
+  { username: "ChairlinkGuest26", password: "GuestChair26" },
+  { username: "ChairlinkGuest27", password: "GuestChair27" },
+  { username: "ChairlinkGuest28", password: "GuestChair28" },
+  { username: "ChairlinkGuest29", password: "GuestChair29" },
+  { username: "ChairlinkGuest30", password: "GuestChair30" },
+  { username: "ChairlinkGuest31", password: "GuestChair31" },
+  { username: "ChairlinkGuest32", password: "GuestChair32" },
+  { username: "ChairlinkGuest33", password: "GuestChair33" },
+  { username: "ChairlinkGuest34", password: "GuestChair34" },
+  { username: "ChairlinkGuest35", password: "GuestChair35" },
+  { username: "ChairlinkGuest36", password: "GuestChair36" },
+  { username: "ChairlinkGuest37", password: "GuestChair37" },
+  { username: "ChairlinkGuest38", password: "GuestChair38" },
+  { username: "ChairlinkGuest39", password: "GuestChair39" },
+  { username: "ChairlinkGuest40", password: "GuestChair40" },
+  { username: "ChairlinkGuest41", password: "GuestChair41" },
+  { username: "ChairlinkGuest42", password: "GuestChair42" },
+  { username: "ChairlinkGuest43", password: "GuestChair43" },
+  { username: "ChairlinkGuest44", password: "GuestChair44" },
+  { username: "ChairlinkGuest45", password: "GuestChair45" },
+  { username: "ChairlinkGuest46", password: "GuestChair46" },
+  { username: "ChairlinkGuest47", password: "GuestChair47" },
+  { username: "ChairlinkGuest48", password: "GuestChair48" },
+  { username: "ChairlinkGuest49", password: "GuestChair49" },
+  { username: "ChairlinkGuest50", password: "GuestChair50" },
+  { username: "ChairlinkGuest51", password: "GuestChair51" },
+  { username: "ChairlinkGuest52", password: "GuestChair52" },
+  { username: "ChairlinkGuest53", password: "GuestChair53" },
+  { username: "ChairlinkGuest54", password: "GuestChair54" },
+  { username: "ChairlinkGuest55", password: "GuestChair55" },
+  { username: "ChairlinkGuest56", password: "GuestChair56" },
+  { username: "ChairlinkGuest57", password: "GuestChair57" },
+  { username: "ChairlinkGuest58", password: "GuestChair58" },
+  { username: "ChairlinkGuest59", password: "GuestChair59" },
+  { username: "ChairlinkGuest60", password: "GuestChair60" },
+  { username: "ChairlinkGuest61", password: "GuestChair61" },
+  { username: "ChairlinkGuest62", password: "GuestChair62" },
+  { username: "ChairlinkGuest63", password: "GuestChair63" },
+  { username: "ChairlinkGuest64", password: "GuestChair64" },
+  { username: "ChairlinkGuest65", password: "GuestChair65" },
+  { username: "ChairlinkGuest66", password: "GuestChair66" },
+  { username: "ChairlinkGuest67", password: "GuestChair67" },
+  { username: "ChairlinkGuest68", password: "GuestChair68" },
+  { username: "ChairlinkGuest69", password: "GuestChair69" },
+  { username: "ChairlinkGuest70", password: "GuestChair70" },
+  { username: "ChairlinkGuest71", password: "GuestChair71" },
+  { username: "ChairlinkGuest72", password: "GuestChair72" },
+  { username: "ChairlinkGuest73", password: "GuestChair73" },
+  { username: "ChairlinkGuest74", password: "GuestChair74" },
+  { username: "ChairlinkGuest75", password: "GuestChair75" },
+  { username: "ChairlinkGuest76", password: "GuestChair76" },
+  { username: "ChairlinkGuest77", password: "GuestChair77" },
+  { username: "ChairlinkGuest78", password: "GuestChair78" },
+  { username: "ChairlinkGuest79", password: "GuestChair79" },
+  { username: "ChairlinkGuest80", password: "GuestChair80" },
+  { username: "ChairlinkGuest81", password: "GuestChair81" },
+  { username: "ChairlinkGuest82", password: "GuestChair82" },
+  { username: "ChairlinkGuest83", password: "GuestChair83" },
+  { username: "ChairlinkGuest84", password: "GuestChair84" },
+  { username: "ChairlinkGuest85", password: "GuestChair85" },
+  { username: "ChairlinkGuest86", password: "GuestChair86" },
+  { username: "ChairlinkGuest87", password: "GuestChair87" },
+  { username: "ChairlinkGuest88", password: "GuestChair88" },
+  { username: "ChairlinkGuest89", password: "GuestChair89" },
+  { username: "ChairlinkGuest90", password: "GuestChair90" },
+  { username: "ChairlinkGuest91", password: "GuestChair91" },
+  { username: "ChairlinkGuest92", password: "GuestChair92" },
+  { username: "ChairlinkGuest93", password: "GuestChair93" },
+  { username: "ChairlinkGuest94", password: "GuestChair94" },
+  { username: "ChairlinkGuest95", password: "GuestChair95" },
+  { username: "ChairlinkGuest96", password: "GuestChair96" },
+  { username: "ChairlinkGuest97", password: "GuestChair97" },
+  { username: "ChairlinkGuest98", password: "GuestChair98" },
+  { username: "ChairlinkGuest99", password: "GuestChair99" }
+];
+
+
+function showLoginHelp() {
+  document.getElementById('loginError').textContent = "Please contact your team for account issues.";
+  document.getElementById('loginError').classList.remove('hidden');
+}
+
+function checkLoginState() {
+  const user = localStorage.getItem('chairlinkUser');
+  if (user) {
+    document.getElementById('loginOverlay').style.display = 'none';
+    document.body.classList.remove('overflow-hidden');
+    document.getElementById('mainApp').style.display = '';
+    document.getElementById('themeSelectorBar').style.display = '';
+    loadData();
+    setAvailableThemes(JSON.parse(user).username);
+  } else {
+    document.getElementById('loginOverlay').style.display = 'flex';
+    document.body.classList.add('overflow-hidden');
+    document.getElementById('mainApp').style.display = 'none';
+    document.getElementById('themeSelectorBar').style.display = 'none';
+  }
+}
+
+function logout() {
+  localStorage.removeItem('chairlinkUser');
+  location.reload();
+}
+
+document.getElementById('loginForm').onsubmit = function(e) {
+  e.preventDefault();
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const found = allowedUsers.find(u => u.username === username && u.password === password);
+  if (found) {
+    localStorage.setItem('chairlinkUser', JSON.stringify({ username }));
+    document.getElementById('loginOverlay').style.display = 'none';
+    document.getElementById('loadingOverlay').style.display = 'flex';
+    setTimeout(() => {
+      document.getElementById('loadingOverlay').style.display = 'none';
+      document.body.classList.remove('overflow-hidden');
+      document.getElementById('mainApp').style.display = '';
+      loadData();
+      document.getElementById('themeSelectorBar').style.display = '';
+      setAvailableThemes(username);
+      document.getElementById('loginError').classList.add('hidden');
+    }, 3140);
+  } else {
+    document.getElementById('loginError').textContent = "Incorrect username or password.";
+    document.getElementById('loginError').classList.remove('hidden');
+  }
+};
+
+function setAvailableThemes(username) {
+  const themeSelector = document.getElementById('themeSelector');
+  themeSelector.innerHTML = `
+    <option value="light">Light</option>
+    <option value="dark">Dark</option>
+    <option value="sentia-light">Sentia Light</option>
+    <option value="sentia-dark">Sentia Dark</option>
+  `;
+  if (username === "SentiaChair") {
+    themeSelector.innerHTML += `
+      <option value="sentia-light">Sentia Light</option>
+      <option value="sentia-dark">Sentia Dark</option>
+    `;
+  }
+  if (username === "FutureChair") {
+    themeSelector.innerHTML += `
+      <option value="future-light">Future Light</option>
+      <option value="future-dark">Future Dark</option>
+    `;
+  }
+  if (username === "UnityChair") {
+    themeSelector.innerHTML += `
+      <option value="unity-light">Unity Light</option>
+      <option value="unity-dark">Unity Dark</option>
+    `;
+  }
+  loadTheme();
+}
+
+function loadTheme() {
+  const savedTheme = localStorage.getItem('chairlinkTheme') || 'light';
+  document.body.className = `font-sans theme-${savedTheme}`;
+  const selector = document.getElementById('themeSelector');
+  if (selector) selector.value = savedTheme;
+}
+
+document.getElementById('themeSelector').addEventListener('change', (e) => {
+  const selectedTheme = e.target.value;
+  localStorage.setItem('chairlinkTheme', selectedTheme);
+  loadTheme();
+});
+
+window.addEventListener('DOMContentLoaded', checkLoginState);
+
+// PDF Import Delegates Functionality
+let extractedDelegates = [];
+
+// List of common country names for detection
+const countryNames = [
+    'Afghanistan', 'Albania', 'Algeria', 'Argentina', 'Armenia', 'Australia', 'Austria', 'Azerbaijan',
+    'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bhutan',
+    'Bolivia', 'Bosnia', 'Botswana', 'Brazil', 'Brunei', 'Bulgaria', 'Burkina Faso', 'Burundi',
+    'Cambodia', 'Cameroon', 'Canada', 'Cape Verde', 'Central African Republic', 'Chad', 'Chile', 'China',
+    'Colombia', 'Comoros', 'Congo', 'Costa Rica', 'Croatia', 'Cuba', 'Cyprus', 'Czech Republic',
+    'Denmark', 'Djibouti', 'Dominica', 'Dominican Republic', 'Ecuador', 'Egypt', 'El Salvador',
+    'Equatorial Guinea', 'Eritrea', 'Estonia', 'Ethiopia', 'Fiji', 'Finland', 'France', 'Gabon',
+    'Gambia', 'Georgia', 'Germany', 'Ghana', 'Greece', 'Grenada', 'Guatemala', 'Guinea', 'Guinea-Bissau',
+    'Guyana', 'Haiti', 'Honduras', 'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland',
+    'Italy', 'Jamaica', 'Japan', 'Jordan', 'Kazakhstan', 'Kenya', 'Kiribati', 'Kuwait',
+    'Kyrgyzstan', 'Laos', 'Latvia', 'Lebanon', 'Lesotho', 'Liberia', 'Libya', 'Liechtenstein',
+    'Lithuania', 'Luxembourg', 'Madagascar', 'Malawi', 'Malaysia', 'Maldives', 'Mali', 'Malta',
+    'Marshall Islands', 'Mauritania', 'Mauritius', 'Mexico', 'Micronesia', 'Moldova', 'Monaco',
+    'Mongolia', 'Montenegro', 'Morocco', 'Mozambique', 'Myanmar', 'Namibia', 'Nauru', 'Nepal',
+    'Netherlands', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'North Korea', 'North Macedonia',
+    'Norway', 'Oman', 'Pakistan', 'Palau', 'Palestine', 'Panama', 'Papua New Guinea', 'Paraguay',
+    'Peru', 'Philippines', 'Poland', 'Portugal', 'Qatar', 'Romania', 'Russia', 'Rwanda',
+    'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Vincent and the Grenadines', 'Samoa', 'San Marino',
+    'Sao Tome and Principe', 'Saudi Arabia', 'Senegal', 'Serbia', 'Seychelles', 'Sierra Leone',
+    'Singapore', 'Slovakia', 'Slovenia', 'Solomon Islands', 'Somalia', 'South Africa', 'South Korea',
+    'South Sudan', 'Spain', 'Sri Lanka', 'Sudan', 'Suriname', 'Sweden', 'Switzerland', 'Syria',
+    'Tajikistan', 'Tanzania', 'Thailand', 'Timor-Leste', 'Togo', 'Tonga', 'Trinidad and Tobago',
+    'Tunisia', 'Turkey', 'Turkmenistan', 'Tuvalu', 'Uganda', 'Ukraine', 'United Arab Emirates',
+    'United Kingdom', 'United States', 'Uruguay', 'Uzbekistan', 'Vanuatu', 'Vatican City',
+    'Venezuela', 'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe'
+];
+
+// Common court/crisis committee roles
+const courtRoles = [
+    'Judge', 'Prosecutor', 'Defense Attorney', 'Jury Member', 'Witness', 'Court Clerk',
+    'Bailiff', 'Court Reporter', 'Expert Witness', 'Plaintiff', 'Defendant', 'Appellant',
+    'Respondent', 'Petitioner', 'Respondent', 'Amicus Curiae', 'Court Administrator'
+];
+
+const crisisRoles = [
+    'President', 'Prime Minister', 'Minister', 'Secretary', 'Director', 'Commander',
+    'General', 'Admiral', 'Ambassador', 'Consul', 'Governor', 'Mayor', 'CEO',
+    'Chairman', 'Chief', 'Leader', 'Representative', 'Spokesperson', 'Press Secretary'
+];
+
+function showImportDelegatesModal() {
+    showModal('importDelegatesModal');
+    resetImportModal();
+}
+
+function resetImportModal() {
+    // Hide all sections
+    document.getElementById('fileInfo').classList.add('hidden');
+    document.getElementById('processingSection').classList.add('hidden');
+    document.getElementById('resultsSection').classList.add('hidden');
+    document.getElementById('errorSection').classList.add('hidden');
+    
+    // Reset file input
+    document.getElementById('pdfFileInput').value = '';
+    extractedDelegates = [];
+}
+
+// Initialize PDF.js
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+document.getElementById('pdfFileInput').addEventListener('change', handlePDFUpload);
+
+async function handlePDFUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    if (file.type !== 'application/pdf') {
+        showError('Please select a valid PDF file.');
+        return;
+    }
+    
+    // Show file info
+    document.getElementById('fileName').textContent = file.name;
+    document.getElementById('fileSize').textContent = `${(file.size / 1024 / 1024).toFixed(2)} MB`;
+    document.getElementById('fileInfo').classList.remove('hidden');
+    
+    // Start processing
+    document.getElementById('processingSection').classList.remove('hidden');
+    updateProcessingStatus('Extracting text from PDF...', 20);
+    
+    try {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+        
+        updateProcessingStatus('Processing pages...', 40);
+        
+        let fullText = '';
+        const totalPages = pdf.numPages;
+        
+        for (let i = 1; i <= totalPages; i++) {
+            const page = await pdf.getPage(i);
+            const textContent = await page.getTextContent();
+            const pageText = textContent.items.map(item => item.str).join(' ');
+            fullText += pageText + '\n';
+            
+            const progress = 40 + (i / totalPages) * 40;
+            updateProcessingStatus(`Processing page ${i} of ${totalPages}...`, progress);
+        }
+        
+        updateProcessingStatus('Parsing delegate information...', 80);
+        
+        // Parse the text for delegates
+        const delegates = parseDelegateText(fullText);
+        
+        updateProcessingStatus('Complete!', 100);
+        
+        setTimeout(() => {
+            document.getElementById('processingSection').classList.add('hidden');
+            showResults(delegates);
+        }, 500);
+        
+    } catch (error) {
+        console.error('Error processing PDF:', error);
+        showError('Error processing PDF. Please make sure the file is not corrupted.');
+    }
+}
+
+function parseDelegateText(text) {
+    const delegates = [];
+    
+    console.log('Raw text from PDF:', text.substring(0, 500));
+    
+    // Handle the case where all text is in one line (like your PDF)
+    let processedText = text.trim();
+    
+    // If it's all one line, try to parse it as a mixed list
+    if (processedText.split('\n').length === 1) {
+        console.log('Detected single line format - parsing mixed list');
+        
+        // Split by multiple spaces to get individual words/phrases
+        const words = processedText.split(/\s{2,}/).filter(word => word.trim().length > 0);
+        console.log('Words found:', words);
+        
+        // Extract only countries/roles (ignore names)
+        const countries = [];
+        
+        for (const word of words) {
+            const cleanWord = word.trim();
+            
+            // Check if it's a country (exact match only)
+            const isCountry = countryNames.some(country => {
+                const countryLower = country.toLowerCase();
+                const wordLower = cleanWord.toLowerCase();
+                return wordLower === countryLower;
+            });
+            
+            if (isCountry) {
+                countries.push(cleanWord);
+                console.log(`Found country: ${cleanWord}`);
+            } else {
+                // Skip everything that's not a country
+                console.log(`Skipping non-country: ${cleanWord}`);
+            }
+        }
+        
+        console.log(`Total countries/roles found: ${countries.length}`);
+        
+        // Add each country as a delegate (using country name as delegate name)
+        for (const country of countries) {
+            delegates.push({
+                name: country, // Use country name as delegate name
+                delegation: country,
+                type: 'country'
+            });
+            
+            console.log(`✅ Added delegate: ${country} (country)`);
+        }
+        
+    } else {
+        // Original line-by-line processing for multi-line PDFs
+        const lines = processedText.split(/\r?\n/)
+            .map(line => line.trim())
+            .filter(line => line.length > 0);
+        
+        console.log('Total lines found:', lines.length);
+        console.log('First 10 lines:', lines.slice(0, 10));
+        
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            console.log(`Processing line ${i + 1}: "${line}"`);
+            
+            // Skip obvious headers
+            if (line.match(/^(GA|ECOSOC|SC|UN|COMMITTEE|DELEGATE|LIST|NAME|COUNTRY)/i) || 
+                (line.match(/^[A-Z\s]+$/) && line.length > 15)) {
+                console.log(`Skipping header: ${line}`);
+                continue;
+            }
+            
+            // Simple dash pattern - most common format
+            const dashMatch = line.match(/^(.+?)\s*-\s*(.+)$/);
+            if (dashMatch) {
+                let part1 = dashMatch[1].trim();
+                let part2 = dashMatch[2].trim();
+                
+                console.log(`Dash match found: "${part1}" - "${part2}"`);
+                
+                // Clean up the parts
+                part1 = part1.replace(/\s+/g, ' ').trim();
+                part2 = part2.replace(/\s+/g, ' ').trim();
+                
+                // Skip if too short or too long
+                if (part1.length < 2 || part2.length < 2 || part1.length > 60 || part2.length > 60) {
+                    console.log(`Skipping - parts too short/long: "${part1}" "${part2}"`);
+                    continue;
+                }
+                
+                // Skip if no letters
+                if (!/[a-zA-Z]/.test(part1) || !/[a-zA-Z]/.test(part2)) {
+                    console.log(`Skipping - no letters: "${part1}" "${part2}"`);
+                    continue;
+                }
+                
+                // Determine which is country and which is name
+                let name, delegation;
+                
+                // Check if part1 is a country
+                const part1IsCountry = countryNames.some(country => {
+                    const countryLower = country.toLowerCase();
+                    const part1Lower = part1.toLowerCase();
+                    return part1Lower === countryLower || 
+                           part1Lower.includes(countryLower) ||
+                           countryLower.includes(part1Lower);
+                });
+                
+                // Check if part2 is a country
+                const part2IsCountry = countryNames.some(country => {
+                    const countryLower = country.toLowerCase();
+                    const part2Lower = part2.toLowerCase();
+                    return part2Lower === countryLower || 
+                           part2Lower.includes(countryLower) ||
+                           countryLower.includes(part2Lower);
+                });
+                
+                if (part1IsCountry && !part2IsCountry) {
+                    // Country - Name format
+                    delegation = part1;
+                    name = part2;
+                    console.log(`Format: Country-Name: ${delegation} - ${name}`);
+                } else if (part2IsCountry && !part1IsCountry) {
+                    // Name - Country format
+                    name = part1;
+                    delegation = part2;
+                    console.log(`Format: Name-Country: ${name} - ${delegation}`);
+                } else {
+                    // Neither or both are countries, assume Name - Country
+                    name = part1;
+                    delegation = part2;
+                    console.log(`Format: Assumed Name-Country: ${name} - ${delegation}`);
+                }
+                
+                // Final validation
+                if (name.length >= 2 && delegation.length >= 2) {
+                    // Check if delegation is recognized
+                    const isCountry = countryNames.some(country => {
+                        const countryLower = country.toLowerCase();
+                        const delegationLower = delegation.toLowerCase();
+                        return delegationLower === countryLower || 
+                               delegationLower.includes(countryLower) ||
+                               countryLower.includes(delegationLower);
+                    });
+                    
+                    const isCourtRole = courtRoles.some(role => {
+                        const roleLower = role.toLowerCase();
+                        const delegationLower = delegation.toLowerCase();
+                        return delegationLower.includes(roleLower);
+                    });
+                    
+                    const isCrisisRole = crisisRoles.some(role => {
+                        const roleLower = role.toLowerCase();
+                        const delegationLower = delegation.toLowerCase();
+                        return delegationLower.includes(roleLower);
+                    });
+                    
+                    const delegateType = isCountry ? 'country' : (isCourtRole ? 'court' : (isCrisisRole ? 'crisis' : 'custom'));
+                    
+                    delegates.push({
+                        name: name,
+                        delegation: delegation,
+                        type: delegateType
+                    });
+                    
+                    console.log(`✅ Added delegate: ${name} - ${delegation} (${delegateType})`);
+                }
+            }
+        }
+    }
+    
+    console.log(`Total delegates found: ${delegates.length}`);
+    return delegates;
+}
+
+function updateProcessingStatus(message, progress) {
+    document.getElementById('processingStatus').textContent = message;
+    document.getElementById('processingProgress').style.width = `${progress}%`;
+}
+
+function showResults(delegates) {
+    extractedDelegates = delegates;
+    const preview = document.getElementById('delegatePreview');
+    preview.innerHTML = '';
+    
+    if (delegates.length === 0) {
+        preview.innerHTML = '<p class="text-gray-500 italic text-center">No delegates found in the PDF. Please check the format.</p>';
+    } else {
+        delegates.forEach((delegate, index) => {
+            const typeIcon = delegate.type === 'country' ? 'fas fa-flag' : 
+                           delegate.type === 'court' ? 'fas fa-gavel' : 
+                           delegate.type === 'custom' ? 'fas fa-user' : 'fas fa-user-tie';
+            const typeColor = delegate.type === 'country' ? 'text-blue-600' : 
+                            delegate.type === 'court' ? 'text-purple-600' : 
+                            delegate.type === 'custom' ? 'text-gray-600' : 'text-red-600';
+            
+            preview.innerHTML += `
+                <div class="flex items-center justify-between p-2 bg-white rounded border">
+                    <div class="flex items-center">
+                        <i class="${typeIcon} ${typeColor} mr-2"></i>
+                        <span class="font-medium">${delegate.delegation}</span>
+                    </div>
+                    <span class="text-xs px-2 py-1 rounded ${delegate.type === 'country' ? 'bg-blue-100 text-blue-800' : 
+                        delegate.type === 'court' ? 'bg-purple-100 text-purple-800' : 
+                        delegate.type === 'custom' ? 'bg-gray-100 text-gray-800' : 'bg-red-100 text-red-800'}">
+                        ${delegate.type}
+                    </span>
+                </div>
+            `;
+        });
+    }
+    
+    document.getElementById('delegateCount').textContent = delegates.length;
+    document.getElementById('resultsSection').classList.remove('hidden');
+}
+
+function showError(message) {
+    document.getElementById('errorMessage').textContent = message;
+    document.getElementById('errorSection').classList.remove('hidden');
+    document.getElementById('processingSection').classList.add('hidden');
+}
+
+// Handle import confirmation
+document.getElementById('confirmImportBtn').addEventListener('click', function() {
+    if (extractedDelegates.length === 0) {
+        showNotification('No delegates to import.', 'warning');
+        return;
+    }
+    
+    let importedCount = 0;
+    
+    extractedDelegates.forEach(delegate => {
+        // Check if delegate already exists
+        const existingDelegate = delegates.find(d => 
+            d.name.toLowerCase() === delegate.name.toLowerCase() && 
+            d.country.toLowerCase() === delegate.delegation.toLowerCase()
+        );
+        
+        if (!existingDelegate) {
+            // Create a custom delegate
+            let flagUrl;
+            if (delegate.type === 'country') {
+                flagUrl = `https://flagcdn.com/w320/${getCountryCode(delegate.delegation)}.png`;
+            } else if (delegate.type === 'custom') {
+                // For custom delegates, try to find a country match first
+                const countryMatch = countryNames.find(country => 
+                    delegate.delegation.toLowerCase().includes(country.toLowerCase()) ||
+                    country.toLowerCase().includes(delegate.delegation.toLowerCase())
+                );
+                if (countryMatch) {
+                    flagUrl = `https://flagcdn.com/w320/${getCountryCode(countryMatch)}.png`;
+                } else {
+                    flagUrl = 'https://via.placeholder.com/32x32/cccccc/666666?text=?';
+                }
+            } else {
+                flagUrl = 'https://via.placeholder.com/32x32/cccccc/666666?text=?';
+            }
+            
+            addDelegate(delegate.name, delegate.delegation, flagUrl);
+            importedCount++;
+        }
+    });
+    
+    if (importedCount > 0) {
+        showNotification(`Successfully imported ${importedCount} delegates!`, 'success');
+        saveData();
+        closeModal('importDelegatesModal');
+    } else {
+        showNotification('All delegates already exist in the system.', 'warning');
+    }
+});
+
+function getCountryCode(countryName) {
+    // Simple mapping for common countries - you can expand this
+    const countryCodes = {
+        'United States': 'us',
+        'United Kingdom': 'gb',
+        'Canada': 'ca',
+        'Australia': 'au',
+        'Germany': 'de',
+        'France': 'fr',
+        'Italy': 'it',
+        'Spain': 'es',
+        'Netherlands': 'nl',
+        'Poland': 'pl',
+        'Russia': 'ru',
+        'China': 'cn',
+        'Japan': 'jp',
+        'India': 'in',
+        'Brazil': 'br',
+        'Mexico': 'mx',
+        'Argentina': 'ar',
+        'South Africa': 'za',
+        'Egypt': 'eg',
+        'Nigeria': 'ng',
+        'Kenya': 'ke',
+        'Turkey': 'tr',
+        'Saudi Arabia': 'sa',
+        'Iran': 'ir',
+        'South Korea': 'kr',
+        'Thailand': 'th',
+        'Vietnam': 'vn',
+        'Indonesia': 'id',
+        'Philippines': 'ph',
+        'Malaysia': 'my',
+        'Singapore': 'sg',
+        'New Zealand': 'nz',
+        'Colombia': 'co',
+        'Ethiopia': 'et',
+        'Syria': 'sy',
+        'Lebanon': 'lb',
+        'Iraq': 'iq',
+        'Sudan': 'sd',
+        'Bosnia': 'ba',
+        'Palestine': 'ps'
+    };
+    
+    return countryCodes[countryName] || 'un'; // Default to UN flag
+}
+</script>
+
+<script src="https://www.gstatic.com/firebasejs/12.1.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore-compat.js"></script>
+
+<script>
+     // Your web app's Firebase configuration
+   const firebaseConfig = {
+     apiKey: "AIzaSyBUQe0yIvOE2H-aegXa9FdPgPZ8h1VI9_4",
+     authDomain: "chairlink-backend.firebaseapp.com",
+     projectId: "chairlink-backend",
+     storageBucket: "chairlink-backend.firebasestorage.app",
+     messagingSenderId: "332882160250",
+     appId: "1:332882160250:web:c77752e8a3873e7568e9c3"
+   };
+
+
+     const app = firebase.initializeApp(firebaseConfig);
+     const db = firebase.firestore();
+   </script>
+</body>
+</html>
